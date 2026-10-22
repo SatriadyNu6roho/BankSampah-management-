@@ -51,7 +51,7 @@ Sistem Manajemen Bank Sampah tingkat RT (Rukun Tetangga) dirancang untuk memperm
 
 1. **Clone Repositori:**
    ```bash
-   git clone [https://github.com/username/bank-sampah-rt.git](https://github.com/username/bank-sampah-rt.git)
+   git clone [https://github.com/SatriadyNu6roho/BankSampah-management-.git](https://github.com/SatriadyNu6roho/BankSampah-management-.git)
    cd bank-sampah-rt
 
  langkah-langkah lain:
