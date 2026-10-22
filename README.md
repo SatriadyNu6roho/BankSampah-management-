@@ -1,64 +1,101 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+#  Bank Sampah RT — Web Admin & Mobile App System
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Manajemen Bank Sampah tingkat RT (Rukun Tetangga) dirancang untuk mempermudah warga dalam menyetor sampah dan membantu pengelola (Pak RT/Admin) dalam merekapitulasi data setoran, melakukan verifikasi, menimbang bobot, serta mengonversi sampah menjadi poin dan saldo rupiah secara terintegrasi.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🛠️ Tech Stack & Arsitektur
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* **Web Admin (Dashboard Pengelola):**
+  * **Framework:** Laravel 8 (PHP 7.4 / 8.0+)
+  * **Database:** MySQL
+  * **Frontend & UI:** Bootstrap 5, Glassmorphism CSS, FontAwesome 6
+  * **Data Visualization:** Chart.js (Donut Progress & Daily Analytics Bar Chart)
+* **Mobile App (Aplikasi Warga):**
+  * **Engine:** MIT App Inventor (Native WebViewer Integration)
+  * **Image Processing:** Auto-Compression via PHP GD Library (Resized max 1000px, 70% Quality)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ✨ Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 👨‍💼 1. Web Dashboard Admin (Pak RT)
+* **Ringkasan Progress Real-time:** Visualisasi persentase pengumpulan sampah Organik vs Non-Organik dengan Chart Donut interaktif.
+* **Project Analytics Harian:** Grafik batang analisis frekuensi setoran warga per hari untuk mengetahui tingkat keaktifan warga.
+* **Sistem Verifikasi Setoran:**
+  * Penimbangan bobot ($kg$) setoran warga.
+  * Kalkulasi otomatis poin dan saldo rupiah berdasarkan jenis sampah:
+    * **Organik:** $1\text{ kg} = 10\text{ Poin} \mid \text{Rp } 1.000$
+    * **Non-Organik:** $1\text{ kg} = 30\text{ Poin} \mid \text{Rp } 3.000$
+* **Manajemen Akun Warga:** Fitur CRUD lengkap untuk menambah, memperbarui password, dan menghapus akun warga/admin.
+* **Ekspor Laporan Spreadsheet/Excel:** Fitur ekspor data setoran ke format CSV/Excel dengan dukungan *Hybrid Download* (Lancar dibuka via PC Browser maupun *WebViewer App Inventor* menggunakan protokol `ActivityStarter`).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📱 2. Mobile App (Warga RT)
+* **Autentikasi Akun:** Login berbasis NIK/Username dengan filterisasi role otomatis (Admin / User).
+* **Setor Sampah via Kamera:** Pengunggahan bukti foto sampah langsung dari kamera HP dengan kompresi otomatis di server backend.
+* **Dompet Digital Warga (Wallet API):** Menampilkan total akumulasi poin, akumulasi saldo rupiah, total bobot sampah yang disetor, serta riwayat status verifikasi.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## 📡 Dokumentasi API (Endpoints)
 
-### Premium Partners
+| HTTP Method | Endpoint | Fungsi | Parameter Utama |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/login` | Autentikasi User & Admin | `username`, `password` |
+| `POST` | `/api/upload-sampah` | Unggah Bukti Foto Setoran Sampah | `user_id`, `jenis_sampah`, `file`/`foto` |
+| `GET` | `/api/user-wallet` | Ambil Data Poin, Saldo, & Riwayat | `user_id` |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+---
 
-## Contributing
+## 🚀 Panduan Instalasi (Backend Laravel)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Clone Repositori:**
+   ```bash
+   git clone [https://github.com/username/bank-sampah-rt.git](https://github.com/username/bank-sampah-rt.git)
+   cd bank-sampah-rt
 
-## Code of Conduct
+ langkah-langkah lain:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1.Instal Dependensi PHP:
 
-## Security Vulnerabilities
+Bash
+composer install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+2.Konfigurasi Environment (.env):
+Salin file .env.example menjadi .env:
 
-## License
+Bash
+cp .env.example .env
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Atur koneksi database di file .env:
+
+Cuplikan kode
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=bank_sampah_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+3.Generate App Key & Jalankan Migrasi Database:
+
+Bash
+php artisan key:generate
+php artisan migrate --seed
+
+4.Buat Symlink Storage Gambar:
+
+Bash
+php artisan storage:link
+
+5.Jalankan Server Lokal (Support Akses HP/LAN):
+
+Bash
+php artisan serve --host=0.0.0.0 --port=8000
+
+6.Pengaturan Aplikasi Mobile (MIT App Inventor)
+ 1.Impor berkas mobile-app/Bank_Sampah_RT12.aia ke dalam MIT App Inventor.
+
+ 2.Sesuaikan IP server pada variabel URL di blok Screen1, Screen2, dan ScreenAdmin dengan alamat IP IPv4 laptop kamu (contoh: http://192.168.1.206:8000).
+
+ 3.Build file APK atau jalankan via MIT Companion di HP Android.
