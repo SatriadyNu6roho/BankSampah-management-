@@ -1,0 +1,5076 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+app/
+  Console/
+    Kernel.php
+  Exceptions/
+    Handler.php
+  Http/
+    Controllers/
+      ApiController.php
+      Controller.php
+    Middleware/
+      Authenticate.php
+      EncryptCookies.php
+      PreventRequestsDuringMaintenance.php
+      RedirectIfAuthenticated.php
+      TrimStrings.php
+      TrustHosts.php
+      TrustProxies.php
+      VerifyCsrfToken.php
+    Kernel.php
+  Models/
+    Report.php
+    User.php
+  Providers/
+    AppServiceProvider.php
+    AuthServiceProvider.php
+    BroadcastServiceProvider.php
+    EventServiceProvider.php
+    RouteServiceProvider.php
+bootstrap/
+  cache/
+    .gitignore
+  app.php
+config/
+  app.php
+  auth.php
+  broadcasting.php
+  cache.php
+  cors.php
+  database.php
+  filesystems.php
+  hashing.php
+  logging.php
+  mail.php
+  queue.php
+  sanctum.php
+  services.php
+  session.php
+  view.php
+database/
+  factories/
+    UserFactory.php
+  migrations/
+    2014_10_12_000000_create_users_table.php
+    2014_10_12_100000_create_password_resets_table.php
+    2019_08_19_000000_create_failed_jobs_table.php
+    2019_12_14_000001_create_personal_access_tokens_table.php
+    2026_09_29_071057_create_reports_table.php
+    2026_10_14_194905_add_gamification_to_reports_table.php
+  seeders/
+    DatabaseSeeder.php
+  .gitignore
+public/
+  fonts/
+    FerroRosso.ttf
+    LTWaveUI-Medium.otf
+  images/
+    walp.png
+  .htaccess
+  favicon.ico
+  index.php
+  robots.txt
+resources/
+  css/
+    app.css
+  js/
+    app.js
+    bootstrap.js
+  lang/
+    en/
+      auth.php
+      pagination.php
+      passwords.php
+      validation.php
+  views/
+    admin/
+      dashboard.blade.php
+    welcome.blade.php
+routes/
+  api.php
+  channels.php
+  console.php
+  web.php
+storage/
+  app/
+    public/
+      .gitignore
+    .gitignore
+  framework/
+    cache/
+      data/
+        .gitignore
+      .gitignore
+    sessions/
+      .gitignore
+    testing/
+      .gitignore
+    views/
+      .gitignore
+    .gitignore
+  logs/
+    .gitignore
+tests/
+  Feature/
+    ExampleTest.php
+  Unit/
+    ExampleTest.php
+  CreatesApplication.php
+  TestCase.php
+.editorconfig
+.env.example
+.gitattributes
+.gitignore
+.styleci.yml
+artisan
+composer.json
+package.json
+phpunit.xml
+README.md
+server.php
+webpack.mix.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="app/Console/Kernel.php">
+<?php
+
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // $schedule->command('inspire')->hourly();
+    }
+
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
+</file>
+
+<file path="app/Exceptions/Handler.php">
+<?php
+
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Throwable;
+
+class Handler extends ExceptionHandler
+{
+    /**
+     * A list of the exception types that are not reported.
+     *
+     * @var array<int, class-string<Throwable>>
+     */
+    protected $dontReport = [
+        //
+    ];
+
+    /**
+     * A list of the inputs that are never flashed for validation exceptions.
+     *
+     * @var array<int, string>
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+
+    /**
+     * Register the exception handling callbacks for the application.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->reportable(function (Throwable $e) {
+            //
+        });
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/ApiController.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Report;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+
+class ApiController extends Controller
+{
+    // API 1: Login & Filterisasi Role
+    public function login(Request $request)
+    {
+        $rawUsername = $request->query('username') ?? $request->input('username');
+        $rawPassword = $request->query('password') ?? $request->input('password');
+
+        $username = trim((string) $rawUsername);
+        $password = trim((string) $rawPassword);
+
+        if (empty($username) || empty($password)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Username dan Password wajib diisi!'
+            ], 200);
+        }
+
+        $user = User::whereRaw('LOWER(username) = ?', [strtolower($username)])->first();
+
+        if (!$user) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Username tidak terdaftar!'
+            ], 200);
+        }
+
+        $isPasswordValid = false;
+        if (Hash::check($password, $user->password) || $password === $user->password) {
+            $isPasswordValid = true;
+        }
+
+        if (!$isPasswordValid) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Username atau Password salah!'
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'role'   => strtolower(trim($user->role)),
+            'id'     => (string) $user->id,
+            'message'=> 'Login Berhasil!'
+        ], 200);
+    }
+
+// API 2: Upload Bukti Sampah (Dengan Kompresi Gambar Otomatis)
+public function uploadSampah(Request $request)
+{
+    $userId = $request->query('user_id') ?? $request->input('user_id');
+    $jenisSampah = $request->query('jenis_sampah') ?? $request->input('jenis_sampah');
+
+    if (empty($userId)) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Gagal: ID User tidak ditemukan dari aplikasi mobile!'
+        ], 400);
+    }
+
+    $imageName = 'sampah_' . time() . '_' . uniqid() . '.jpg';
+    $destinationPath = storage_path('app/public/uploads/sampah');
+
+    // Buat folder jika belum ada
+    if (!file_exists($destinationPath)) {
+        mkdir($destinationPath, 0755, true);
+    }
+
+    // Ambil file yang diunggah
+    $uploadedFile = $request->file('file') ?? $request->file('foto');
+
+    if ($uploadedFile) {
+        $sourcePath = $uploadedFile->getRealPath();
+    } else {
+        // Jika dikirim sebagai raw binary
+        $tempPath = tempnam(sys_get_temp_dir(), 'upload_');
+        file_put_contents($tempPath, $request->getContent());
+        $sourcePath = tempPath;
+    }
+
+    // Proses Kompresi & Resize dengan PHP GD (Bawaan PHP, Tanpa Package Luar)
+    if (file_exists($sourcePath) && filesize($sourcePath) > 0) {
+        $imgData = @file_get_contents($sourcePath);
+        $srcImage = @imagecreatefromstring($imgData);
+
+        if ($srcImage !== false) {
+            $width = imagesx($srcImage);
+            $height = imagesy($srcImage);
+
+            // Batasi lebar / tinggi maksimum ke 1000px
+            $maxDim = 1000;
+            if ($width > $maxDim || $height > $maxDim) {
+                $ratio = min($maxDim / $width, $maxDim / $height);
+                $newWidth = round($width * $ratio);
+                $newHeight = round($height * $ratio);
+            } else {
+                $newWidth = $width;
+                $newHeight = $height;
+            }
+
+            $dstImage = imagecreatetruecolor($newWidth, $newHeight);
+            imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+            // Simpan gambar dengan kualitas kompresi 70% (File mengecil drastis)
+            imagejpeg($dstImage, $destinationPath . '/' . $imageName, 70);
+
+            imagedestroy($srcImage);
+            imagedestroy($dstImage);
+        } else {
+            // Fallback jika GD gagal
+            if ($uploadedFile) {
+                $uploadedFile->storeAs('uploads/sampah', $imageName, 'public');
+            } else {
+                Storage::disk('public')->put('uploads/sampah/' . $imageName, $request->getContent());
+            }
+        }
+    }
+
+    $report = Report::create([
+        'user_id'      => $userId,
+        'jenis_sampah' => $jenisSampah,
+        'foto'         => $imageName,
+        'status'       => 'Menunggu',
+        'bobot_kg'     => 0,
+        'poin'         => 0,
+        'saldo_rp'     => 0
+    ]);
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Bukti sampah berhasil diunggah! Menunggu verifikasi admin.',
+        'data'    => $report
+    ], 201);
+}
+
+    // API 3: Ringkasan Dompet, Poin, Saldo, & Status Setoran Warga
+    public function getUserWallet(Request $request)
+    {
+        $userId = $request->query('user_id') ?? $request->input('user_id');
+
+        if (empty($userId)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Gagal: User ID dibutuhkan!'
+            ], 400);
+        }
+
+        $reports = Report::where('user_id', $userId)->get();
+
+        $totalPoin = $reports->where('status', 'Disetujui')->sum('poin');
+        $totalSaldo = $reports->where('status', 'Disetujui')->sum('saldo_rp');
+        $totalKg = $reports->where('status', 'Disetujui')->sum('bobot_kg');
+
+        $riwayat = $reports->sortByDesc('created_at')->values()->map(function($item) {
+            return [
+                'id'           => $item->id,
+                'jenis_sampah' => $item->jenis_sampah,
+                'bobot_kg'     => (float)$item->bobot_kg,
+                'poin'         => (int)$item->poin,
+                'saldo_rp'     => 'Rp ' . number_format($item->saldo_rp, 0, ',', '.'),
+                'status'       => $item->status,
+                'waktu'        => $item->created_at ? $item->created_at->format('d/m/Y H:i') : '-'
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'total_poin'     => (int)$totalPoin,
+                'total_saldo_rp' => 'Rp ' . number_format($totalSaldo, 0, ',', '.'),
+                'total_kg'       => (float)$totalKg,
+                'riwayat'        => $riwayat
+            ]
+        ], 200);
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Controller.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+
+class Controller extends BaseController
+{
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+}
+</file>
+
+<file path="app/Http/Middleware/Authenticate.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Auth\Middleware\Authenticate as Middleware;
+
+class Authenticate extends Middleware
+{
+    /**
+     * Get the path the user should be redirected to when they are not authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string|null
+     */
+    protected function redirectTo($request)
+    {
+        if (! $request->expectsJson()) {
+            return route('login');
+        }
+    }
+}
+</file>
+
+<file path="app/Http/Middleware/EncryptCookies.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Cookie\Middleware\EncryptCookies as Middleware;
+
+class EncryptCookies extends Middleware
+{
+    /**
+     * The names of the cookies that should not be encrypted.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        //
+    ];
+}
+</file>
+
+<file path="app/Http/Middleware/PreventRequestsDuringMaintenance.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance as Middleware;
+
+class PreventRequestsDuringMaintenance extends Middleware
+{
+    /**
+     * The URIs that should be reachable while maintenance mode is enabled.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        //
+    ];
+}
+</file>
+
+<file path="app/Http/Middleware/RedirectIfAuthenticated.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Providers\RouteServiceProvider;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class RedirectIfAuthenticated
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @param  string|null  ...$guards
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next, ...$guards)
+    {
+        $guards = empty($guards) ? [null] : $guards;
+
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                return redirect(RouteServiceProvider::HOME);
+            }
+        }
+
+        return $next($request);
+    }
+}
+</file>
+
+<file path="app/Http/Middleware/TrimStrings.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\TrimStrings as Middleware;
+
+class TrimStrings extends Middleware
+{
+    /**
+     * The names of the attributes that should not be trimmed.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+}
+</file>
+
+<file path="app/Http/Middleware/TrustHosts.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Middleware\TrustHosts as Middleware;
+
+class TrustHosts extends Middleware
+{
+    /**
+     * Get the host patterns that should be trusted.
+     *
+     * @return array<int, string|null>
+     */
+    public function hosts()
+    {
+        return [
+            $this->allSubdomainsOfApplicationUrl(),
+        ];
+    }
+}
+</file>
+
+<file path="app/Http/Middleware/TrustProxies.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Middleware\TrustProxies as Middleware;
+use Illuminate\Http\Request;
+
+class TrustProxies extends Middleware
+{
+    /**
+     * The trusted proxies for this application.
+     *
+     * @var array<int, string>|string|null
+     */
+    protected $proxies;
+
+    /**
+     * The headers that should be used to detect proxies.
+     *
+     * @var int
+     */
+    protected $headers =
+        Request::HEADER_X_FORWARDED_FOR |
+        Request::HEADER_X_FORWARDED_HOST |
+        Request::HEADER_X_FORWARDED_PORT |
+        Request::HEADER_X_FORWARDED_PROTO |
+        Request::HEADER_X_FORWARDED_AWS_ELB;
+}
+</file>
+
+<file path="app/Http/Middleware/VerifyCsrfToken.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+
+class VerifyCsrfToken extends Middleware
+{
+    /**
+     * The URIs that should be excluded from CSRF verification.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        //
+    ];
+}
+</file>
+
+<file path="app/Http/Kernel.php">
+<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * The application's global HTTP middleware stack.
+     *
+     * These middleware are run during every request to your application.
+     *
+     * @var array<int, class-string|string>
+     */
+    protected $middleware = [
+        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustProxies::class,
+        \Fruitcake\Cors\HandleCors::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array<string, array<int, class-string|string>>
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+
+        'api' => [
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+    ];
+
+    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    ];
+}
+</file>
+
+<file path="app/Models/Report.php">
+<?php
+
+namespace App\Models; // Gunakan namespace App; jika lokasi file kamu ada di app/Report.php
+
+use Illuminate\Database\Eloquent\Model;
+
+class Report extends Model
+{
+    // Tambahkan kolom-kolom baru di $fillable agar izin simpan/update diberikan oleh Laravel
+    protected $fillable = [
+        'user_id',
+        'jenis_sampah',
+        'foto',
+        'bobot_kg',
+        'poin',
+        'saldo_rp',
+        'status',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+</file>
+
+<file path="app/Models/User.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'username',
+        'name',
+        'password',
+        'role',
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+}
+</file>
+
+<file path="app/Providers/AppServiceProvider.php">
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+}
+</file>
+
+<file path="app/Providers/AuthServiceProvider.php">
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+
+class AuthServiceProvider extends ServiceProvider
+{
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array<class-string, class-string>
+     */
+    protected $policies = [
+        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+    ];
+
+    /**
+     * Register any authentication / authorization services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->registerPolicies();
+
+        //
+    }
+}
+</file>
+
+<file path="app/Providers/BroadcastServiceProvider.php">
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\ServiceProvider;
+
+class BroadcastServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Broadcast::routes();
+
+        require base_path('routes/channels.php');
+    }
+}
+</file>
+
+<file path="app/Providers/EventServiceProvider.php">
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
+
+class EventServiceProvider extends ServiceProvider
+{
+    /**
+     * The event listener mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected $listen = [
+        Registered::class => [
+            SendEmailVerificationNotification::class,
+        ],
+    ];
+
+    /**
+     * Register any events for your application.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+}
+</file>
+
+<file path="app/Providers/RouteServiceProvider.php">
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
+
+class RouteServiceProvider extends ServiceProvider
+{
+    /**
+     * The path to the "home" route for your application.
+     *
+     * This is used by Laravel authentication to redirect users after login.
+     *
+     * @var string
+     */
+    public const HOME = '/home';
+
+    /**
+     * The controller namespace for the application.
+     *
+     * When present, controller route declarations will automatically be prefixed with this namespace.
+     *
+     * @var string|null
+     */
+    // protected $namespace = 'App\\Http\\Controllers';
+
+    /**
+     * Define your route model bindings, pattern filters, etc.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->configureRateLimiting();
+
+        $this->routes(function () {
+            Route::prefix('api')
+                ->middleware('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('web')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/web.php'));
+        });
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     *
+     * @return void
+     */
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+        });
+    }
+}
+</file>
+
+<file path="bootstrap/cache/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="bootstrap/app.php">
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Create The Application
+|--------------------------------------------------------------------------
+|
+| The first thing we will do is create a new Laravel application instance
+| which serves as the "glue" for all the components of Laravel, and is
+| the IoC container for the system binding all of the various parts.
+|
+*/
+
+$app = new Illuminate\Foundation\Application(
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+);
+
+/*
+|--------------------------------------------------------------------------
+| Bind Important Interfaces
+|--------------------------------------------------------------------------
+|
+| Next, we need to bind some important interfaces into the container so
+| we will be able to resolve them when needed. The kernels serve the
+| incoming requests to this application from both the web and CLI.
+|
+*/
+
+$app->singleton(
+    Illuminate\Contracts\Http\Kernel::class,
+    App\Http\Kernel::class
+);
+
+$app->singleton(
+    Illuminate\Contracts\Console\Kernel::class,
+    App\Console\Kernel::class
+);
+
+$app->singleton(
+    Illuminate\Contracts\Debug\ExceptionHandler::class,
+    App\Exceptions\Handler::class
+);
+
+/*
+|--------------------------------------------------------------------------
+| Return The Application
+|--------------------------------------------------------------------------
+|
+| This script returns the application instance. The instance is given to
+| the calling script so we can separate the building of the instances
+| from the actual running of the application and sending responses.
+|
+*/
+
+return $app;
+</file>
+
+<file path="config/app.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the name of your application. This value is used when the
+    | framework needs to place the application's name in a notification or
+    | any other location as required by the application or its packages.
+    |
+    */
+
+    'name' => env('APP_NAME', 'Laravel'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Environment
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the "environment" your application is currently
+    | running in. This may determine how you prefer to configure various
+    | services the application utilizes. Set this in your ".env" file.
+    |
+    */
+
+    'env' => env('APP_ENV', 'production'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Debug Mode
+    |--------------------------------------------------------------------------
+    |
+    | When your application is in debug mode, detailed error messages with
+    | stack traces will be shown on every error that occurs within your
+    | application. If disabled, a simple generic error page is shown.
+    |
+    */
+
+    'debug' => (bool) env('APP_DEBUG', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL is used by the console to properly generate URLs when using
+    | the Artisan command line tool. You should set this to the root of
+    | your application so that it is used when running Artisan tasks.
+    |
+    */
+
+    'url' => env('APP_URL', 'http://localhost'),
+
+    'asset_url' => env('ASSET_URL', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the default timezone for your application, which
+    | will be used by the PHP date and date-time functions. We have gone
+    | ahead and set this to a sensible default for you out of the box.
+    |
+    */
+
+    'timezone' => 'Asia/Jakarta',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Locale Configuration
+    |--------------------------------------------------------------------------
+    |
+    | The application locale determines the default locale that will be used
+    | by the translation service provider. You are free to set this value
+    | to any of the locales which will be supported by the application.
+    |
+    */
+
+    'locale' => 'en',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Fallback Locale
+    |--------------------------------------------------------------------------
+    |
+    | The fallback locale determines the locale to use when the current one
+    | is not available. You may change the value to correspond to any of
+    | the language folders that are provided through your application.
+    |
+    */
+
+    'fallback_locale' => 'en',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Faker Locale
+    |--------------------------------------------------------------------------
+    |
+    | This locale will be used by the Faker PHP library when generating fake
+    | data for your database seeds. For example, this will be used to get
+    | localized telephone numbers, street address information and more.
+    |
+    */
+
+    'faker_locale' => 'en_US',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is used by the Illuminate encrypter service and should be set
+    | to a random, 32 character string, otherwise these encrypted strings
+    | will not be safe. Please do this before deploying an application!
+    |
+    */
+
+    'key' => env('APP_KEY'),
+
+    'cipher' => 'AES-256-CBC',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Autoloaded Service Providers
+    |--------------------------------------------------------------------------
+    |
+    | The service providers listed here will be automatically loaded on the
+    | request to your application. Feel free to add your own services to
+    | this array to grant expanded functionality to your applications.
+    |
+    */
+
+    'providers' => [
+
+        /*
+         * Laravel Framework Service Providers...
+         */
+        Illuminate\Auth\AuthServiceProvider::class,
+        Illuminate\Broadcasting\BroadcastServiceProvider::class,
+        Illuminate\Bus\BusServiceProvider::class,
+        Illuminate\Cache\CacheServiceProvider::class,
+        Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+        Illuminate\Cookie\CookieServiceProvider::class,
+        Illuminate\Database\DatabaseServiceProvider::class,
+        Illuminate\Encryption\EncryptionServiceProvider::class,
+        Illuminate\Filesystem\FilesystemServiceProvider::class,
+        Illuminate\Foundation\Providers\FoundationServiceProvider::class,
+        Illuminate\Hashing\HashServiceProvider::class,
+        Illuminate\Mail\MailServiceProvider::class,
+        Illuminate\Notifications\NotificationServiceProvider::class,
+        Illuminate\Pagination\PaginationServiceProvider::class,
+        Illuminate\Pipeline\PipelineServiceProvider::class,
+        Illuminate\Queue\QueueServiceProvider::class,
+        Illuminate\Redis\RedisServiceProvider::class,
+        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
+        Illuminate\Session\SessionServiceProvider::class,
+        Illuminate\Translation\TranslationServiceProvider::class,
+        Illuminate\Validation\ValidationServiceProvider::class,
+        Illuminate\View\ViewServiceProvider::class,
+
+        /*
+         * Package Service Providers...
+         */
+
+        /*
+         * Application Service Providers...
+         */
+        App\Providers\AppServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Class Aliases
+    |--------------------------------------------------------------------------
+    |
+    | This array of class aliases will be registered when this application
+    | is started. However, feel free to register as many as you wish as
+    | the aliases are "lazy" loaded so they don't hinder performance.
+    |
+    */
+
+    'aliases' => [
+
+        'App' => Illuminate\Support\Facades\App::class,
+        'Arr' => Illuminate\Support\Arr::class,
+        'Artisan' => Illuminate\Support\Facades\Artisan::class,
+        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'Blade' => Illuminate\Support\Facades\Blade::class,
+        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
+        'Bus' => Illuminate\Support\Facades\Bus::class,
+        'Cache' => Illuminate\Support\Facades\Cache::class,
+        'Config' => Illuminate\Support\Facades\Config::class,
+        'Cookie' => Illuminate\Support\Facades\Cookie::class,
+        'Crypt' => Illuminate\Support\Facades\Crypt::class,
+        'Date' => Illuminate\Support\Facades\Date::class,
+        'DB' => Illuminate\Support\Facades\DB::class,
+        'Eloquent' => Illuminate\Database\Eloquent\Model::class,
+        'Event' => Illuminate\Support\Facades\Event::class,
+        'File' => Illuminate\Support\Facades\File::class,
+        'Gate' => Illuminate\Support\Facades\Gate::class,
+        'Hash' => Illuminate\Support\Facades\Hash::class,
+        'Http' => Illuminate\Support\Facades\Http::class,
+        'Js' => Illuminate\Support\Js::class,
+        'Lang' => Illuminate\Support\Facades\Lang::class,
+        'Log' => Illuminate\Support\Facades\Log::class,
+        'Mail' => Illuminate\Support\Facades\Mail::class,
+        'Notification' => Illuminate\Support\Facades\Notification::class,
+        'Password' => Illuminate\Support\Facades\Password::class,
+        'Queue' => Illuminate\Support\Facades\Queue::class,
+        'RateLimiter' => Illuminate\Support\Facades\RateLimiter::class,
+        'Redirect' => Illuminate\Support\Facades\Redirect::class,
+        // 'Redis' => Illuminate\Support\Facades\Redis::class,
+        'Request' => Illuminate\Support\Facades\Request::class,
+        'Response' => Illuminate\Support\Facades\Response::class,
+        'Route' => Illuminate\Support\Facades\Route::class,
+        'Schema' => Illuminate\Support\Facades\Schema::class,
+        'Session' => Illuminate\Support\Facades\Session::class,
+        'Storage' => Illuminate\Support\Facades\Storage::class,
+        'Str' => Illuminate\Support\Str::class,
+        'URL' => Illuminate\Support\Facades\URL::class,
+        'Validator' => Illuminate\Support\Facades\Validator::class,
+        'View' => Illuminate\Support\Facades\View::class,
+
+    ],
+
+];
+</file>
+
+<file path="config/auth.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Defaults
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default authentication "guard" and password
+    | reset options for your application. You may change these defaults
+    | as required, but they're a perfect start for most applications.
+    |
+    */
+
+    'defaults' => [
+        'guard' => 'web',
+        'passwords' => 'users',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Guards
+    |--------------------------------------------------------------------------
+    |
+    | Next, you may define every authentication guard for your application.
+    | Of course, a great default configuration has been defined for you
+    | here which uses session storage and the Eloquent user provider.
+    |
+    | All authentication drivers have a user provider. This defines how the
+    | users are actually retrieved out of your database or other storage
+    | mechanisms used by this application to persist your user's data.
+    |
+    | Supported: "session"
+    |
+    */
+
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Providers
+    |--------------------------------------------------------------------------
+    |
+    | All authentication drivers have a user provider. This defines how the
+    | users are actually retrieved out of your database or other storage
+    | mechanisms used by this application to persist your user's data.
+    |
+    | If you have multiple user tables or models you may configure multiple
+    | sources which represent each model / table. These sources may then
+    | be assigned to any extra authentication guards you have defined.
+    |
+    | Supported: "database", "eloquent"
+    |
+    */
+
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
+        // 'users' => [
+        //     'driver' => 'database',
+        //     'table' => 'users',
+        // ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resetting Passwords
+    |--------------------------------------------------------------------------
+    |
+    | You may specify multiple password reset configurations if you have more
+    | than one user table or model in the application and you want to have
+    | separate password reset settings based on the specific user types.
+    |
+    | The expire time is the number of minutes that each reset token will be
+    | considered valid. This security feature keeps tokens short-lived so
+    | they have less time to be guessed. You may change this as needed.
+    |
+    */
+
+    'passwords' => [
+        'users' => [
+            'provider' => 'users',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Confirmation Timeout
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define the amount of seconds before a password confirmation
+    | times out and the user is prompted to re-enter their password via the
+    | confirmation screen. By default, the timeout lasts for three hours.
+    |
+    */
+
+    'password_timeout' => 10800,
+
+];
+</file>
+
+<file path="config/broadcasting.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Broadcaster
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default broadcaster that will be used by the
+    | framework when an event needs to be broadcast. You may set this to
+    | any of the connections defined in the "connections" array below.
+    |
+    | Supported: "pusher", "ably", "redis", "log", "null"
+    |
+    */
+
+    'default' => env('BROADCAST_DRIVER', 'null'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Broadcast Connections
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define all of the broadcast connections that will be used
+    | to broadcast events to other systems or over websockets. Samples of
+    | each available type of connection are provided inside this array.
+    |
+    */
+
+    'connections' => [
+
+        'pusher' => [
+            'driver' => 'pusher',
+            'key' => env('PUSHER_APP_KEY'),
+            'secret' => env('PUSHER_APP_SECRET'),
+            'app_id' => env('PUSHER_APP_ID'),
+            'options' => [
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'useTLS' => true,
+            ],
+        ],
+
+        'ably' => [
+            'driver' => 'ably',
+            'key' => env('ABLY_KEY'),
+        ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+        ],
+
+        'log' => [
+            'driver' => 'log',
+        ],
+
+        'null' => [
+            'driver' => 'null',
+        ],
+
+    ],
+
+];
+</file>
+
+<file path="config/cache.php">
+<?php
+
+use Illuminate\Support\Str;
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default cache connection that gets used while
+    | using this caching library. This connection is used when another is
+    | not explicitly specified when executing a given caching function.
+    |
+    */
+
+    'default' => env('CACHE_DRIVER', 'file'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Stores
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define all of the cache "stores" for your application as
+    | well as their drivers. You may even define multiple stores for the
+    | same cache driver to group types of items stored in your caches.
+    |
+    | Supported drivers: "apc", "array", "database", "file",
+    |         "memcached", "redis", "dynamodb", "octane", "null"
+    |
+    */
+
+    'stores' => [
+
+        'apc' => [
+            'driver' => 'apc',
+        ],
+
+        'array' => [
+            'driver' => 'array',
+            'serialize' => false,
+        ],
+
+        'database' => [
+            'driver' => 'database',
+            'table' => 'cache',
+            'connection' => null,
+            'lock_connection' => null,
+        ],
+
+        'file' => [
+            'driver' => 'file',
+            'path' => storage_path('framework/cache/data'),
+        ],
+
+        'memcached' => [
+            'driver' => 'memcached',
+            'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
+            'sasl' => [
+                env('MEMCACHED_USERNAME'),
+                env('MEMCACHED_PASSWORD'),
+            ],
+            'options' => [
+                // Memcached::OPT_CONNECT_TIMEOUT => 2000,
+            ],
+            'servers' => [
+                [
+                    'host' => env('MEMCACHED_HOST', '127.0.0.1'),
+                    'port' => env('MEMCACHED_PORT', 11211),
+                    'weight' => 100,
+                ],
+            ],
+        ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'cache',
+            'lock_connection' => 'default',
+        ],
+
+        'dynamodb' => [
+            'driver' => 'dynamodb',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
+            'endpoint' => env('DYNAMODB_ENDPOINT'),
+        ],
+
+        'octane' => [
+            'driver' => 'octane',
+        ],
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Key Prefix
+    |--------------------------------------------------------------------------
+    |
+    | When utilizing a RAM based store such as APC or Memcached, there might
+    | be other applications utilizing the same cache. So, we'll specify a
+    | value to get prefixed to all our keys so we can avoid collisions.
+    |
+    */
+
+    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache'),
+
+];
+</file>
+
+<file path="config/cors.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cross-Origin Resource Sharing (CORS) Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure your settings for cross-origin resource sharing
+    | or "CORS". This determines what cross-origin operations may execute
+    | in web browsers. You are free to adjust these settings as needed.
+    |
+    | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+    |
+    */
+
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => ['*'],
+
+    'allowed_origins_patterns' => [],
+
+    'allowed_headers' => ['*'],
+
+    'exposed_headers' => [],
+
+    'max_age' => 0,
+
+    'supports_credentials' => false,
+
+];
+</file>
+
+<file path="config/database.php">
+<?php
+
+use Illuminate\Support\Str;
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Database Connection Name
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify which of the database connections below you wish
+    | to use as your default connection for all database work. Of course
+    | you may use many connections at once using the Database library.
+    |
+    */
+
+    'default' => env('DB_CONNECTION', 'mysql'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Connections
+    |--------------------------------------------------------------------------
+    |
+    | Here are each of the database connections setup for your application.
+    | Of course, examples of configuring each database platform that is
+    | supported by Laravel is shown below to make development simple.
+    |
+    |
+    | All database work in Laravel is done through the PHP PDO facilities
+    | so make sure you have the driver for your particular database of
+    | choice installed on your machine before you begin development.
+    |
+    */
+
+    'connections' => [
+
+        'sqlite' => [
+            'driver' => 'sqlite',
+            'url' => env('DATABASE_URL'),
+            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+        ],
+
+        'mysql' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'schema' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
+        'sqlsrv' => [
+            'driver' => 'sqlsrv',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', '1433'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+        ],
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Migration Repository Table
+    |--------------------------------------------------------------------------
+    |
+    | This table keeps track of all the migrations that have already run for
+    | your application. Using this information, we can determine which of
+    | the migrations on disk haven't actually been run in the database.
+    |
+    */
+
+    'migrations' => 'migrations',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redis Databases
+    |--------------------------------------------------------------------------
+    |
+    | Redis is an open source, fast, and advanced key-value store that also
+    | provides a richer body of commands than a typical key-value system
+    | such as APC or Memcached. Laravel makes it easy to dig right in.
+    |
+    */
+
+    'redis' => [
+
+        'client' => env('REDIS_CLIENT', 'phpredis'),
+
+        'options' => [
+            'cluster' => env('REDIS_CLUSTER', 'redis'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        ],
+
+        'default' => [
+            'url' => env('REDIS_URL'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', '6379'),
+            'database' => env('REDIS_DB', '0'),
+        ],
+
+        'cache' => [
+            'url' => env('REDIS_URL'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', '6379'),
+            'database' => env('REDIS_CACHE_DB', '1'),
+        ],
+
+    ],
+
+];
+</file>
+
+<file path="config/filesystems.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Filesystem Disk
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the default filesystem disk that should be used
+    | by the framework. The "local" disk, as well as a variety of cloud
+    | based disks are available to your application. Just store away!
+    |
+    */
+
+    'default' => env('FILESYSTEM_DRIVER', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filesystem Disks
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure as many filesystem "disks" as you wish, and you
+    | may even configure multiple disks of the same driver. Defaults have
+    | been setup for each driver as an example of the required options.
+    |
+    | Supported Drivers: "local", "ftp", "sftp", "s3"
+    |
+    */
+
+    'disks' => [
+
+        'local' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+        ],
+
+        'public' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+
+        's3' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+        ],
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Symbolic Links
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the symbolic links that will be created when the
+    | `storage:link` Artisan command is executed. The array keys should be
+    | the locations of the links and the values should be their targets.
+    |
+    */
+
+    'links' => [
+        public_path('storage') => storage_path('app/public'),
+    ],
+
+];
+</file>
+
+<file path="config/hashing.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Hash Driver
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default hash driver that will be used to hash
+    | passwords for your application. By default, the bcrypt algorithm is
+    | used; however, you remain free to modify this option if you wish.
+    |
+    | Supported: "bcrypt", "argon", "argon2id"
+    |
+    */
+
+    'driver' => 'bcrypt',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bcrypt Options
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the configuration options that should be used when
+    | passwords are hashed using the Bcrypt algorithm. This will allow you
+    | to control the amount of time it takes to hash the given password.
+    |
+    */
+
+    'bcrypt' => [
+        'rounds' => env('BCRYPT_ROUNDS', 10),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Argon Options
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the configuration options that should be used when
+    | passwords are hashed using the Argon algorithm. These will allow you
+    | to control the amount of time it takes to hash the given password.
+    |
+    */
+
+    'argon' => [
+        'memory' => 65536,
+        'threads' => 1,
+        'time' => 4,
+    ],
+
+];
+</file>
+
+<file path="config/logging.php">
+<?php
+
+use Monolog\Handler\NullHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Handler\SyslogUdpHandler;
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Log Channel
+    |--------------------------------------------------------------------------
+    |
+    | This option defines the default log channel that gets used when writing
+    | messages to the logs. The name specified in this option should match
+    | one of the channels defined in the "channels" configuration array.
+    |
+    */
+
+    'default' => env('LOG_CHANNEL', 'stack'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deprecations Log Channel
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the log channel that should be used to log warnings
+    | regarding deprecated PHP and library features. This allows you to get
+    | your application ready for upcoming major versions of dependencies.
+    |
+    */
+
+    'deprecations' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log Channels
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the log channels for your application. Out of
+    | the box, Laravel uses the Monolog PHP logging library. This gives
+    | you a variety of powerful log handlers / formatters to utilize.
+    |
+    | Available Drivers: "single", "daily", "slack", "syslog",
+    |                    "errorlog", "monolog",
+    |                    "custom", "stack"
+    |
+    */
+
+    'channels' => [
+        'stack' => [
+            'driver' => 'stack',
+            'channels' => ['single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'single' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
+        'daily' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+        ],
+
+        'slack' => [
+            'driver' => 'slack',
+            'url' => env('LOG_SLACK_WEBHOOK_URL'),
+            'username' => 'Laravel Log',
+            'emoji' => ':boom:',
+            'level' => env('LOG_LEVEL', 'critical'),
+        ],
+
+        'papertrail' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'handler' => SyslogUdpHandler::class,
+            'handler_with' => [
+                'host' => env('PAPERTRAIL_URL'),
+                'port' => env('PAPERTRAIL_PORT'),
+            ],
+        ],
+
+        'stderr' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'handler' => StreamHandler::class,
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
+        ],
+
+        'syslog' => [
+            'driver' => 'syslog',
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
+        'errorlog' => [
+            'driver' => 'errorlog',
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
+        'null' => [
+            'driver' => 'monolog',
+            'handler' => NullHandler::class,
+        ],
+
+        'emergency' => [
+            'path' => storage_path('logs/laravel.log'),
+        ],
+    ],
+
+];
+</file>
+
+<file path="config/mail.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Mailer
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default mailer that is used to send any email
+    | messages sent by your application. Alternative mailers may be setup
+    | and used as needed; however, this mailer will be used by default.
+    |
+    */
+
+    'default' => env('MAIL_MAILER', 'smtp'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mailer Configurations
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure all of the mailers used by your application plus
+    | their respective settings. Several examples have been configured for
+    | you and you are free to add your own as your application requires.
+    |
+    | Laravel supports a variety of mail "transport" drivers to be used while
+    | sending an e-mail. You will specify which one you are using for your
+    | mailers below. You are free to add additional mailers as required.
+    |
+    | Supported: "smtp", "sendmail", "mailgun", "ses",
+    |            "postmark", "log", "array", "failover"
+    |
+    */
+
+    'mailers' => [
+        'smtp' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+            'port' => env('MAIL_PORT', 587),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME'),
+            'password' => env('MAIL_PASSWORD'),
+            'timeout' => null,
+            'auth_mode' => null,
+        ],
+
+        'ses' => [
+            'transport' => 'ses',
+        ],
+
+        'mailgun' => [
+            'transport' => 'mailgun',
+        ],
+
+        'postmark' => [
+            'transport' => 'postmark',
+        ],
+
+        'sendmail' => [
+            'transport' => 'sendmail',
+            'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -t -i'),
+        ],
+
+        'log' => [
+            'transport' => 'log',
+            'channel' => env('MAIL_LOG_CHANNEL'),
+        ],
+
+        'array' => [
+            'transport' => 'array',
+        ],
+
+        'failover' => [
+            'transport' => 'failover',
+            'mailers' => [
+                'smtp',
+                'log',
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Global "From" Address
+    |--------------------------------------------------------------------------
+    |
+    | You may wish for all e-mails sent by your application to be sent from
+    | the same address. Here, you may specify a name and address that is
+    | used globally for all e-mails that are sent by your application.
+    |
+    */
+
+    'from' => [
+        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'name' => env('MAIL_FROM_NAME', 'Example'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Markdown Mail Settings
+    |--------------------------------------------------------------------------
+    |
+    | If you are using Markdown based email rendering, you may configure your
+    | theme and component paths here, allowing you to customize the design
+    | of the emails. Or, you may simply stick with the Laravel defaults!
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'default',
+
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+
+];
+</file>
+
+<file path="config/queue.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Queue Connection Name
+    |--------------------------------------------------------------------------
+    |
+    | Laravel's queue API supports an assortment of back-ends via a single
+    | API, giving you convenient access to each back-end using the same
+    | syntax for every one. Here you may define a default connection.
+    |
+    */
+
+    'default' => env('QUEUE_CONNECTION', 'sync'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue Connections
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the connection information for each server that
+    | is used by your application. A default configuration has been added
+    | for each back-end shipped with Laravel. You are free to add more.
+    |
+    | Drivers: "sync", "database", "beanstalkd", "sqs", "redis", "null"
+    |
+    */
+
+    'connections' => [
+
+        'sync' => [
+            'driver' => 'sync',
+        ],
+
+        'database' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'default',
+            'retry_after' => 90,
+            'after_commit' => false,
+        ],
+
+        'beanstalkd' => [
+            'driver' => 'beanstalkd',
+            'host' => 'localhost',
+            'queue' => 'default',
+            'retry_after' => 90,
+            'block_for' => 0,
+            'after_commit' => false,
+        ],
+
+        'sqs' => [
+            'driver' => 'sqs',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'prefix' => env('SQS_PREFIX', 'https://sqs.us-east-1.amazonaws.com/your-account-id'),
+            'queue' => env('SQS_QUEUE', 'default'),
+            'suffix' => env('SQS_SUFFIX'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'after_commit' => false,
+        ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+            'queue' => env('REDIS_QUEUE', 'default'),
+            'retry_after' => 90,
+            'block_for' => null,
+            'after_commit' => false,
+        ],
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Failed Queue Jobs
+    |--------------------------------------------------------------------------
+    |
+    | These options configure the behavior of failed queue job logging so you
+    | can control which database and table are used to store the jobs that
+    | have failed. You may change them to any database / table you wish.
+    |
+    */
+
+    'failed' => [
+        'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
+        'database' => env('DB_CONNECTION', 'mysql'),
+        'table' => 'failed_jobs',
+    ],
+
+];
+</file>
+
+<file path="config/sanctum.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stateful Domains
+    |--------------------------------------------------------------------------
+    |
+    | Requests from the following domains / hosts will receive stateful API
+    | authentication cookies. Typically, these should include your local
+    | and production domains which access your API via a frontend SPA.
+    |
+    */
+
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+        '%s%s',
+        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : ''
+    ))),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanctum Guards
+    |--------------------------------------------------------------------------
+    |
+    | This array contains the authentication guards that will be checked when
+    | Sanctum is trying to authenticate a request. If none of these guards
+    | are able to authenticate the request, Sanctum will use the bearer
+    | token that's present on an incoming request for authentication.
+    |
+    */
+
+    'guard' => ['web'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Expiration Minutes
+    |--------------------------------------------------------------------------
+    |
+    | This value controls the number of minutes until an issued token will be
+    | considered expired. If this value is null, personal access tokens do
+    | not expire. This won't tweak the lifetime of first-party sessions.
+    |
+    */
+
+    'expiration' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanctum Middleware
+    |--------------------------------------------------------------------------
+    |
+    | When authenticating your first-party SPA with Sanctum you may need to
+    | customize some of the middleware Sanctum uses while processing the
+    | request. You may change the middleware listed below as required.
+    |
+    */
+
+    'middleware' => [
+        'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
+        'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+    ],
+
+];
+</file>
+
+<file path="config/services.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Third Party Services
+    |--------------------------------------------------------------------------
+    |
+    | This file is for storing the credentials for third party services such
+    | as Mailgun, Postmark, AWS and more. This file provides the de facto
+    | location for this type of information, allowing packages to have
+    | a conventional file to locate the various service credentials.
+    |
+    */
+
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+    ],
+
+    'postmark' => [
+        'token' => env('POSTMARK_TOKEN'),
+    ],
+
+    'ses' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+];
+</file>
+
+<file path="config/session.php">
+<?php
+
+use Illuminate\Support\Str;
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Session Driver
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default session "driver" that will be used on
+    | requests. By default, we will use the lightweight native driver but
+    | you may specify any of the other wonderful drivers provided here.
+    |
+    | Supported: "file", "cookie", "database", "apc",
+    |            "memcached", "redis", "dynamodb", "array"
+    |
+    */
+
+    'driver' => env('SESSION_DRIVER', 'file'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Lifetime
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the number of minutes that you wish the session
+    | to be allowed to remain idle before it expires. If you want them
+    | to immediately expire on the browser closing, set that option.
+    |
+    */
+
+    'lifetime' => env('SESSION_LIFETIME', 120),
+
+    'expire_on_close' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Encryption
+    |--------------------------------------------------------------------------
+    |
+    | This option allows you to easily specify that all of your session data
+    | should be encrypted before it is stored. All encryption will be run
+    | automatically by Laravel and you can use the Session like normal.
+    |
+    */
+
+    'encrypt' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session File Location
+    |--------------------------------------------------------------------------
+    |
+    | When using the native session driver, we need a location where session
+    | files may be stored. A default has been set for you but a different
+    | location may be specified. This is only needed for file sessions.
+    |
+    */
+
+    'files' => storage_path('framework/sessions'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database Connection
+    |--------------------------------------------------------------------------
+    |
+    | When using the "database" or "redis" session drivers, you may specify a
+    | connection that should be used to manage these sessions. This should
+    | correspond to a connection in your database configuration options.
+    |
+    */
+
+    'connection' => env('SESSION_CONNECTION', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database Table
+    |--------------------------------------------------------------------------
+    |
+    | When using the "database" session driver, you may specify the table we
+    | should use to manage the sessions. Of course, a sensible default is
+    | provided for you; however, you are free to change this as needed.
+    |
+    */
+
+    'table' => 'sessions',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | While using one of the framework's cache driven session backends you may
+    | list a cache store that should be used for these sessions. This value
+    | must match with one of the application's configured cache "stores".
+    |
+    | Affects: "apc", "dynamodb", "memcached", "redis"
+    |
+    */
+
+    'store' => env('SESSION_STORE', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Sweeping Lottery
+    |--------------------------------------------------------------------------
+    |
+    | Some session drivers must manually sweep their storage location to get
+    | rid of old sessions from storage. Here are the chances that it will
+    | happen on a given request. By default, the odds are 2 out of 100.
+    |
+    */
+
+    'lottery' => [2, 100],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Name
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the name of the cookie used to identify a session
+    | instance by ID. The name specified here will get used every time a
+    | new session cookie is created by the framework for every driver.
+    |
+    */
+
+    'cookie' => env(
+        'SESSION_COOKIE',
+        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Path
+    |--------------------------------------------------------------------------
+    |
+    | The session cookie path determines the path for which the cookie will
+    | be regarded as available. Typically, this will be the root path of
+    | your application but you are free to change this when necessary.
+    |
+    */
+
+    'path' => '/',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Domain
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the domain of the cookie used to identify a session
+    | in your application. This will determine which domains the cookie is
+    | available to in your application. A sensible default has been set.
+    |
+    */
+
+    'domain' => env('SESSION_DOMAIN', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTPS Only Cookies
+    |--------------------------------------------------------------------------
+    |
+    | By setting this option to true, session cookies will only be sent back
+    | to the server if the browser has a HTTPS connection. This will keep
+    | the cookie from being sent to you when it can't be done securely.
+    |
+    */
+
+    'secure' => env('SESSION_SECURE_COOKIE'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTP Access Only
+    |--------------------------------------------------------------------------
+    |
+    | Setting this value to true will prevent JavaScript from accessing the
+    | value of the cookie and the cookie will only be accessible through
+    | the HTTP protocol. You are free to modify this option if needed.
+    |
+    */
+
+    'http_only' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Same-Site Cookies
+    |--------------------------------------------------------------------------
+    |
+    | This option determines how your cookies behave when cross-site requests
+    | take place, and can be used to mitigate CSRF attacks. By default, we
+    | will set this value to "lax" since this is a secure default value.
+    |
+    | Supported: "lax", "strict", "none", null
+    |
+    */
+
+    'same_site' => 'lax',
+
+];
+</file>
+
+<file path="config/view.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | View Storage Paths
+    |--------------------------------------------------------------------------
+    |
+    | Most templating systems load templates from disk. Here you may specify
+    | an array of paths that should be checked for your views. Of course
+    | the usual Laravel view path has already been registered for you.
+    |
+    */
+
+    'paths' => [
+        resource_path('views'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Compiled View Path
+    |--------------------------------------------------------------------------
+    |
+    | This option determines where all the compiled Blade templates will be
+    | stored for your application. Typically, this is within the storage
+    | directory. However, as usual, you are free to change this value.
+    |
+    */
+
+    'compiled' => env(
+        'VIEW_COMPILED_PATH',
+        realpath(storage_path('framework/views'))
+    ),
+
+];
+</file>
+
+<file path="database/factories/UserFactory.php">
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class UserFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+        ];
+    }
+
+    /**
+     * Indicate that the model's email address should be unverified.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function unverified()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'email_verified_at' => null,
+            ];
+        });
+    }
+}
+</file>
+
+<file path="database/migrations/2014_10_12_000000_create_users_table.php">
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('username')->unique(); // NIK / Nomor ID Kepala Keluarga
+            $table->string('name');             // Nama Kepala Keluarga
+            $table->string('password');
+            $table->enum('role', ['admin', 'user'])->default('user'); // Filterisasi Role
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('users');
+    }
+};
+</file>
+
+<file path="database/migrations/2014_10_12_100000_create_password_resets_table.php">
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreatePasswordResetsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('password_resets', function (Blueprint $table) {
+            $table->string('email')->index();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('password_resets');
+    }
+}
+</file>
+
+<file path="database/migrations/2019_08_19_000000_create_failed_jobs_table.php">
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateFailedJobsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('failed_jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid')->unique();
+            $table->text('connection');
+            $table->text('queue');
+            $table->longText('payload');
+            $table->longText('exception');
+            $table->timestamp('failed_at')->useCurrent();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('failed_jobs');
+    }
+}
+</file>
+
+<file path="database/migrations/2019_12_14_000001_create_personal_access_tokens_table.php">
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreatePersonalAccessTokensTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('tokenable');
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('personal_access_tokens');
+    }
+}
+</file>
+
+<file path="database/migrations/2026_09_29_071057_create_reports_table.php">
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateReportsTable extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('reports', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->enum('jenis_sampah', ['Organik', 'Non-Organik']);
+            $table->string('foto');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('reports');
+    }
+}
+</file>
+
+<file path="database/migrations/2026_10_14_194905_add_gamification_to_reports_table.php">
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddGamificationToReportsTable extends Migration
+{
+    public function up()
+    {
+        Schema::table('reports', function (Blueprint $table) {
+            $table->decimal('bobot_kg', 8, 2)->default(0)->after('jenis_sampah');
+            $table->integer('poin')->default(0)->after('bobot_kg');
+            $table->decimal('saldo_rp', 12, 2)->default(0)->after('poin');
+            $table->enum('status', ['Menunggu', 'Disetujui', 'Ditolak'])->default('Menunggu')->after('saldo_rp');
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('reports', function (Blueprint $table) {
+            $table->dropColumn(['bobot_kg', 'poin', 'saldo_rp', 'status']);
+        });
+    }
+}
+</file>
+
+<file path="database/seeders/DatabaseSeeder.php">
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use App\Models\Report;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // 1. Buat Data Admin (Pak RT)
+        $admin = User::create([
+            'username' => 'admin',
+            'name'     => 'Pak RT 01 (Pak Ahmad)',
+            'password' => Hash::make('admin123'),
+            'role'     => 'admin',
+        ]);
+
+        // 2. Buat Data User (Kepala Keluarga)
+        $user1 = User::create([
+            'username' => 'kk001',
+            'name'     => 'Budi Santoso',
+            'password' => Hash::make('123456'),
+            'role'     => 'user',
+        ]);
+
+        $user2 = User::create([
+            'username' => 'kk002',
+            'name'     => 'Joko Susilo',
+            'password' => Hash::make('joko123'),
+            'role'     => 'user',
+        ]);
+
+        $user2 = User::create([
+            'username' => 'kkoo3',
+            'name'     => 'Satriow',
+            'password' => Hash::make('123satt'),
+            'role'     => 'user',
+        ]);
+
+        // 3. Buat Data Contoh Laporan Sampah (Reports)
+        Report::create([
+            'user_id'      => $user1->id,
+            'jenis_sampah' => 'Organik',
+            'foto'         => 'contoh_organik.jpg',
+        ]);
+
+        Report::create([
+            'user_id'      => $user2->id,
+            'jenis_sampah' => 'Non-Organik',
+            'foto'         => 'contoh_non_organik.jpg',
+        ]);
+    }
+}
+</file>
+
+<file path="database/.gitignore">
+*.sqlite*
+</file>
+
+<file path="public/.htaccess">
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+</file>
+
+<file path="public/index.php">
+<?php
+
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+/*
+|--------------------------------------------------------------------------
+| Check If The Application Is Under Maintenance
+|--------------------------------------------------------------------------
+|
+| If the application is in maintenance / demo mode via the "down" command
+| we will load this file so that any pre-rendered content can be shown
+| instead of starting the framework, which could cause an exception.
+|
+*/
+
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader for
+| this application. We just need to utilize it! We'll simply require it
+| into the script here so we don't need to manually load our classes.
+|
+*/
+
+require __DIR__.'/../vendor/autoload.php';
+
+/*
+|--------------------------------------------------------------------------
+| Run The Application
+|--------------------------------------------------------------------------
+|
+| Once we have the application, we can handle the incoming request using
+| the application's HTTP kernel. Then, we will send the response back
+| to this client's browser, allowing them to enjoy our application.
+|
+*/
+
+$app = require_once __DIR__.'/../bootstrap/app.php';
+
+$kernel = $app->make(Kernel::class);
+
+$response = $kernel->handle(
+    $request = Request::capture()
+)->send();
+
+$kernel->terminate($request, $response);
+</file>
+
+<file path="public/robots.txt">
+User-agent: *
+Disallow:
+</file>
+
+<file path="resources/css/app.css">
+
+</file>
+
+<file path="resources/js/app.js">
+require('./bootstrap');
+</file>
+
+<file path="resources/js/bootstrap.js">
+window._ = require('lodash');
+
+/**
+ * We'll load the axios HTTP library which allows us to easily issue requests
+ * to our Laravel back-end. This library automatically handles sending the
+ * CSRF token as a header based on the value of the "XSRF" token cookie.
+ */
+
+window.axios = require('axios');
+
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allows your team to easily build robust real-time web applications.
+ */
+
+// import Echo from 'laravel-echo';
+
+// window.Pusher = require('pusher-js');
+
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: process.env.MIX_PUSHER_APP_KEY,
+//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//     forceTLS: true
+// });
+</file>
+
+<file path="resources/lang/en/auth.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are used during authentication for various
+    | messages that we need to display to the user. You are free to modify
+    | these language lines according to your application's requirements.
+    |
+    */
+
+    'failed' => 'These credentials do not match our records.',
+    'password' => 'The provided password is incorrect.',
+    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+
+];
+</file>
+
+<file path="resources/lang/en/pagination.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are used by the paginator library to build
+    | the simple pagination links. You are free to change them to anything
+    | you want to customize your views to better match your application.
+    |
+    */
+
+    'previous' => '&laquo; Previous',
+    'next' => 'Next &raquo;',
+
+];
+</file>
+
+<file path="resources/lang/en/passwords.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are the default lines which match reasons
+    | that are given by the password broker for a password update attempt
+    | has failed, such as for an invalid token or invalid new password.
+    |
+    */
+
+    'reset' => 'Your password has been reset!',
+    'sent' => 'We have emailed your password reset link!',
+    'throttled' => 'Please wait before retrying.',
+    'token' => 'This password reset token is invalid.',
+    'user' => "We can't find a user with that email address.",
+
+];
+</file>
+
+<file path="resources/lang/en/validation.php">
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validation Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines contain the default error messages used by
+    | the validator class. Some of these rules have multiple versions such
+    | as the size rules. Feel free to tweak each of these messages here.
+    |
+    */
+
+    'accepted' => 'The :attribute must be accepted.',
+    'accepted_if' => 'The :attribute must be accepted when :other is :value.',
+    'active_url' => 'The :attribute is not a valid URL.',
+    'after' => 'The :attribute must be a date after :date.',
+    'after_or_equal' => 'The :attribute must be a date after or equal to :date.',
+    'alpha' => 'The :attribute must only contain letters.',
+    'alpha_dash' => 'The :attribute must only contain letters, numbers, dashes and underscores.',
+    'alpha_num' => 'The :attribute must only contain letters and numbers.',
+    'array' => 'The :attribute must be an array.',
+    'before' => 'The :attribute must be a date before :date.',
+    'before_or_equal' => 'The :attribute must be a date before or equal to :date.',
+    'between' => [
+        'numeric' => 'The :attribute must be between :min and :max.',
+        'file' => 'The :attribute must be between :min and :max kilobytes.',
+        'string' => 'The :attribute must be between :min and :max characters.',
+        'array' => 'The :attribute must have between :min and :max items.',
+    ],
+    'boolean' => 'The :attribute field must be true or false.',
+    'confirmed' => 'The :attribute confirmation does not match.',
+    'current_password' => 'The password is incorrect.',
+    'date' => 'The :attribute is not a valid date.',
+    'date_equals' => 'The :attribute must be a date equal to :date.',
+    'date_format' => 'The :attribute does not match the format :format.',
+    'declined' => 'The :attribute must be declined.',
+    'declined_if' => 'The :attribute must be declined when :other is :value.',
+    'different' => 'The :attribute and :other must be different.',
+    'digits' => 'The :attribute must be :digits digits.',
+    'digits_between' => 'The :attribute must be between :min and :max digits.',
+    'dimensions' => 'The :attribute has invalid image dimensions.',
+    'distinct' => 'The :attribute field has a duplicate value.',
+    'email' => 'The :attribute must be a valid email address.',
+    'ends_with' => 'The :attribute must end with one of the following: :values.',
+    'enum' => 'The selected :attribute is invalid.',
+    'exists' => 'The selected :attribute is invalid.',
+    'file' => 'The :attribute must be a file.',
+    'filled' => 'The :attribute field must have a value.',
+    'gt' => [
+        'numeric' => 'The :attribute must be greater than :value.',
+        'file' => 'The :attribute must be greater than :value kilobytes.',
+        'string' => 'The :attribute must be greater than :value characters.',
+        'array' => 'The :attribute must have more than :value items.',
+    ],
+    'gte' => [
+        'numeric' => 'The :attribute must be greater than or equal to :value.',
+        'file' => 'The :attribute must be greater than or equal to :value kilobytes.',
+        'string' => 'The :attribute must be greater than or equal to :value characters.',
+        'array' => 'The :attribute must have :value items or more.',
+    ],
+    'image' => 'The :attribute must be an image.',
+    'in' => 'The selected :attribute is invalid.',
+    'in_array' => 'The :attribute field does not exist in :other.',
+    'integer' => 'The :attribute must be an integer.',
+    'ip' => 'The :attribute must be a valid IP address.',
+    'ipv4' => 'The :attribute must be a valid IPv4 address.',
+    'ipv6' => 'The :attribute must be a valid IPv6 address.',
+    'json' => 'The :attribute must be a valid JSON string.',
+    'lt' => [
+        'numeric' => 'The :attribute must be less than :value.',
+        'file' => 'The :attribute must be less than :value kilobytes.',
+        'string' => 'The :attribute must be less than :value characters.',
+        'array' => 'The :attribute must have less than :value items.',
+    ],
+    'lte' => [
+        'numeric' => 'The :attribute must be less than or equal to :value.',
+        'file' => 'The :attribute must be less than or equal to :value kilobytes.',
+        'string' => 'The :attribute must be less than or equal to :value characters.',
+        'array' => 'The :attribute must not have more than :value items.',
+    ],
+    'mac_address' => 'The :attribute must be a valid MAC address.',
+    'max' => [
+        'numeric' => 'The :attribute must not be greater than :max.',
+        'file' => 'The :attribute must not be greater than :max kilobytes.',
+        'string' => 'The :attribute must not be greater than :max characters.',
+        'array' => 'The :attribute must not have more than :max items.',
+    ],
+    'mimes' => 'The :attribute must be a file of type: :values.',
+    'mimetypes' => 'The :attribute must be a file of type: :values.',
+    'min' => [
+        'numeric' => 'The :attribute must be at least :min.',
+        'file' => 'The :attribute must be at least :min kilobytes.',
+        'string' => 'The :attribute must be at least :min characters.',
+        'array' => 'The :attribute must have at least :min items.',
+    ],
+    'multiple_of' => 'The :attribute must be a multiple of :value.',
+    'not_in' => 'The selected :attribute is invalid.',
+    'not_regex' => 'The :attribute format is invalid.',
+    'numeric' => 'The :attribute must be a number.',
+    'password' => 'The password is incorrect.',
+    'present' => 'The :attribute field must be present.',
+    'prohibited' => 'The :attribute field is prohibited.',
+    'prohibited_if' => 'The :attribute field is prohibited when :other is :value.',
+    'prohibited_unless' => 'The :attribute field is prohibited unless :other is in :values.',
+    'prohibits' => 'The :attribute field prohibits :other from being present.',
+    'regex' => 'The :attribute format is invalid.',
+    'required' => 'The :attribute field is required.',
+    'required_array_keys' => 'The :attribute field must contain entries for: :values.',
+    'required_if' => 'The :attribute field is required when :other is :value.',
+    'required_unless' => 'The :attribute field is required unless :other is in :values.',
+    'required_with' => 'The :attribute field is required when :values is present.',
+    'required_with_all' => 'The :attribute field is required when :values are present.',
+    'required_without' => 'The :attribute field is required when :values is not present.',
+    'required_without_all' => 'The :attribute field is required when none of :values are present.',
+    'same' => 'The :attribute and :other must match.',
+    'size' => [
+        'numeric' => 'The :attribute must be :size.',
+        'file' => 'The :attribute must be :size kilobytes.',
+        'string' => 'The :attribute must be :size characters.',
+        'array' => 'The :attribute must contain :size items.',
+    ],
+    'starts_with' => 'The :attribute must start with one of the following: :values.',
+    'string' => 'The :attribute must be a string.',
+    'timezone' => 'The :attribute must be a valid timezone.',
+    'unique' => 'The :attribute has already been taken.',
+    'uploaded' => 'The :attribute failed to upload.',
+    'url' => 'The :attribute must be a valid URL.',
+    'uuid' => 'The :attribute must be a valid UUID.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom validation messages for attributes using the
+    | convention "attribute.rule" to name the lines. This makes it quick to
+    | specify a specific custom language line for a given attribute rule.
+    |
+    */
+
+    'custom' => [
+        'attribute-name' => [
+            'rule-name' => 'custom-message',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Attributes
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are used to swap our attribute placeholder
+    | with something more reader friendly such as "E-Mail Address" instead
+    | of "email". This simply helps us make our message more expressive.
+    |
+    */
+
+    'attributes' => [],
+
+];
+</file>
+
+<file path="resources/views/admin/dashboard.blade.php">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Bank Sampah</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* 1. CUSTOM FONTS */
+        @font-face {
+            font-family: 'FerroRosso';
+            src: url("{{ asset('fonts/FerroRosso.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'LTWaveUI';
+            src: url("{{ asset('fonts/LTWaveUI-Medium.otf') }}") format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 2. BASE STYLING & WHITE SPACE UNTUK SCROLLING */
+        body {
+            background: url("{{ asset('images/walp.png') }}") no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            font-family: 'LTWaveUI', sans-serif !important;
+            color: #1c3225;
+            margin: 0;
+            padding-bottom: 120px;
+        }
+
+        .brand-title {
+            font-family: 'FerroRosso', cursive, sans-serif !important;
+            letter-spacing: 0.5px;
+            font-size: 1.25rem !important;
+        }
+
+        /* 3. GLASSMORPHISM CARDS */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.60);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(30, 50, 38, 0.08);
+            margin-bottom: 20px;
+        }
+
+        /* 4. HEADER NAVBAR ATAS */
+        .top-header {
+            background: rgba(255, 255, 255, 0.70);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+            padding: 10px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        /* 5. FLOATING BOTTOM NAV (3 TOMBOL INTERAKTIF) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            background: rgba(20, 38, 27, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 50px;
+            padding: 6px 10px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .bottom-nav .nav-link {
+            color: #a0b8a8;
+            text-align: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            border: none;
+            background: transparent;
+            padding: 0;
+        }
+
+        .bottom-nav .nav-link i {
+            font-size: 1.2rem;
+        }
+
+        .bottom-nav .nav-link.active {
+            background: #28a745;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(40, 167, 69, 0.45);
+        }
+
+        .bottom-nav .nav-link:hover:not(.active) {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 6. TABEL & CARDS STYLING */
+        .glass-table {
+            color: #1c3225;
+            margin-bottom: 0;
+        }
+
+        .glass-table th {
+            background: rgba(42, 71, 54, 0.1) !important;
+            color: #1b3325 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 10px 12px;
+        }
+
+        .glass-table td {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #243d2e !important;
+            border-color: rgba(255, 255, 255, 0.4);
+            padding: 10px 12px;
+            font-size: 0.85rem;
+        }
+
+        .user-mobile-card {
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* BADGES */
+        .badge-organik {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.6);
+            color: #145a27;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .badge-nonorganik {
+            background: rgba(30, 58, 41, 0.15);
+            border: 1px solid rgba(30, 58, 41, 0.5);
+            color: #1e3a29;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        /* MODAL GLASS */
+        .modal-glass {
+            background: rgba(245, 248, 245, 0.96) !important;
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            color: #1c3225;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
+
+        /* 7. PROGRESS CHART STYLING */
+        .chart-container-box {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto;
+        }
+
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .chart-center-text .percent {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #1c3225;
+            line-height: 1;
+        }
+
+        .chart-center-text .label {
+            font-size: 0.62rem;
+            color: #4a6353;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .stat-chip {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stat-chip:hover, .stat-chip.active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .dot-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    @php
+        $pctOrganik = $totalLaporan > 0 ? round(($totalOrganik / $totalLaporan) * 100, 1) : 0;
+        $pctNonOrganik = $totalLaporan > 0 ? round(($totalNonOrganik / $totalLaporan) * 100, 1) : 0;
+        $namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    @endphp
+
+    <!-- TOP HEADER -->
+    <div class="top-header shadow-sm mb-3">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-leaf text-success fs-4 me-2"></i>
+                <span class="brand-title text-success mb-0">Bank Sampah</span>
+            </div>
+
+            <div class="d-flex align-items-center bg-white bg-opacity-60 px-2 py-1 rounded-pill border border-white">
+                <div class="rounded-circle bg-success text-white p-1 me-1 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                    <i class="fa-solid fa-user-shield" style="font-size: 0.65rem;"></i>
+                </div>
+                <span class="fw-bold text-success" style="font-size: 0.75rem;">Pak RT</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="container-fluid px-2 px-md-4">
+        
+        <!-- NOTIFIKASI SUKSES -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show glass-card text-success border-0 mb-3 p-2 px-3" role="alert" style="font-size: 0.8rem;">
+                <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
+                <button type="button" class="btn-close p-2" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        <!-- PROJECT PROGRESS CARD (RING DONUT) -->
+        <div class="glass-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-success mb-0" style="font-size: 0.85rem;">
+                    <i class="fa-solid fa-chart-donut me-1"></i> Progres Pengumpulan Sampah
+                </h6>
+            </div>
+
+            <div class="row align-items-center g-3">
+                <!-- CHART DONUT RING -->
+                <div class="col-12 col-md-5 col-lg-4 text-center">
+                    <div class="chart-container-box">
+                        <canvas id="wasteProgressChart"></canvas>
+                        <div class="chart-center-text">
+                            <div class="percent" id="centerPercentVal">{{ $pctOrganik }}%</div>
+                            <div class="label" id="centerPercentLabel">Organik</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAT CHIPS -->
+                <div class="col-12 col-md-7 col-lg-8">
+                    <div class="row g-2">
+                        <!-- CHIP TOTAL -->
+                        <div class="col-4">
+                            <div class="stat-chip text-center" id="btnChipTotal" onclick="updateChartCenter('total')">
+                                <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
+                                    <span class="dot-indicator" style="background: #1c3225;"></span>
+                                    <small class="text-muted fw-bold" style="font-size: 0.65rem;">Total</small>
+                                </div>
+                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">{{ $totalLaporan }}</h6>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.6rem;">100% Data</small>
+                            </div>
+                        </div>
+
+                        <!-- CHIP ORGANIK -->
+                        <div class="col-4">
+                            <div class="stat-chip text-center active" id="btnChipOrganik" onclick="updateChartCenter('organik')">
+                                <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
+                                    <span class="dot-indicator" style="background: #48bb78;"></span>
+                                    <small class="text-success fw-bold" style="font-size: 0.65rem;">Organik</small>
+                                </div>
+                                <h6 class="fw-bold mb-0 text-success" style="font-size: 0.95rem;">{{ $totalOrganik }}</h6>
+                                <small class="text-success d-block mt-1 fw-bold" style="font-size: 0.6rem;">{{ $pctOrganik }}%</small>
+                            </div>
+                        </div>
+
+                        <!-- CHIP NON-ORGANIK -->
+                        <div class="col-4">
+                            <div class="stat-chip text-center" id="btnChipNonOrganik" onclick="updateChartCenter('nonorganik')">
+                                <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
+                                    <span class="dot-indicator" style="background: #1e3a29;"></span>
+                                    <small class="fw-bold" style="font-size: 0.65rem; color: #1e3a29;">Non-Org</small>
+                                </div>
+                                <h6 class="fw-bold mb-0" style="font-size: 0.95rem; color: #1e3a29;">{{ $totalNonOrganik }}</h6>
+                                <small class="d-block mt-1 fw-bold" style="font-size: 0.6rem; color: #1e3a29;">{{ $pctNonOrganik }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENTS -->
+        <div class="tab-content" id="nav-tabContent">
+            
+            <!-- TAB 1: DAFTAR LAPORAN SAMPAH -->
+            <div class="tab-pane fade show active" id="pills-laporan" role="tabpanel">
+                <div class="glass-card p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h6 class="fw-bold mb-0 text-success"><i class="fa-solid fa-list me-1"></i>Setor Sampah Warga</h6>
+                        <div class="d-flex gap-1">
+                            <!-- TOMBOL EXCEL HYBRID (SUPPORT DESKTOP & MOBILE WEBVIBEW) -->
+                            <button type="button" class="btn btn-sm btn-success rounded-pill px-2 py-1 shadow-sm" onclick="downloadExcelReport()" style="font-size: 0.7rem;">
+                                <i class="fa-solid fa-file-excel me-1"></i> Excel
+                            </button>
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-2 py-1" onclick="location.reload();" style="font-size: 0.7rem;">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table glass-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th>Nama Warga</th>
+                                    <th>Jenis</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Berat / Hasil</th>
+                                    <th class="text-center">Foto</th>
+                                    <th>Hari & Waktu Setor</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($reports as $index => $report)
+                                    @php
+                                        $hariSetor = $report->created_at ? $namaHari[$report->created_at->dayOfWeek] : '-';
+                                    @endphp
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                        <td><strong>{{ $report->user->name ?? 'Warga' }}</strong></td>
+                                        <td>
+                                            @if($report->jenis_sampah == 'Organik')
+                                                <span class="badge badge-organik px-2 py-1 rounded-pill">Organik</span>
+                                            @else
+                                                <span class="badge badge-nonorganik px-2 py-1 rounded-pill">Non-Org</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($report->status == 'Disetujui')
+                                                <span class="badge bg-success rounded-pill px-2 py-1" style="font-size:0.65rem;">Disetujui</span>
+                                            @elseif($report->status == 'Ditolak')
+                                                <span class="badge bg-danger rounded-pill px-2 py-1" style="font-size:0.65rem;">Ditolak</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark rounded-pill px-2 py-1" style="font-size:0.65rem;">Menunggu</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center" style="font-size:0.75rem;">
+                                            @if($report->status == 'Disetujui')
+                                                <strong>{{ $report->bobot_kg }} Kg</strong><br>
+                                                <small class="text-success fw-bold">+{{ $report->poin }} Pts | Rp {{ number_format($report->saldo_rp, 0, ',', '.') }}</small>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($report->foto)
+                                                <a href="{{ asset('storage/uploads/sampah/' . $report->foto) }}" target="_blank">
+                                                    <!-- OPTIMASI: LAZY LOADING & DECODING ASYNC -->
+                                                    <img src="{{ asset('storage/uploads/sampah/' . $report->foto) }}" width="36" height="36" style="object-fit: cover; border-radius:8px;" alt="Foto" loading="lazy" decoding="async">
+                                                </a>
+                                            @else
+                                                <span class="text-muted small">-</span>
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 0.75rem;">
+                                            <strong class="text-success">{{ $hariSetor }}</strong>, {{ $report->created_at ? $report->created_at->format('d/m/Y H:i') : '-' }}
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-success rounded-pill px-2 py-0 me-1" data-bs-toggle="modal" data-bs-target="#modalVerifikasi{{ $report->id }}" title="Verifikasi">
+                                                <i class="fa-solid fa-check-to-slot"></i>
+                                            </button>
+
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" data-bs-toggle="modal" data-bs-target="#modalHapusLaporan{{ $report->id }}" title="Hapus">
+                                                <i class="fa-solid fa-trash" style="font-size:0.75rem;"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="8" class="text-center text-muted py-3 small">Belum ada laporan setor sampah.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PROJECT ANALYTICS -->
+            <div class="tab-pane fade" id="pills-analytics" role="tabpanel">
+                <div class="glass-card p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chart-column me-1"></i> Project Analytics</h6>
+                            <small class="text-muted" style="font-size:0.7rem;">Analisis frekuensi warga menyubmit sampah per hari</small>
+                        </div>
+                        <span class="badge bg-success text-white rounded-pill px-2 py-1" style="font-size:0.65rem;">
+                            Teramai: {{ $hariTeramai }} ({{ $maxSetor }} Setoran)
+                        </span>
+                    </div>
+
+                    <div class="p-3 bg-white bg-opacity-50 rounded-4 border border-white mb-3">
+                        <div style="height: 180px; position: relative;">
+                            <canvas id="dailyAnalyticsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table glass-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Hari</th>
+                                    <th class="text-center">Jumlah Setor</th>
+                                    <th class="text-center">Persentase</th>
+                                    <th class="text-center">Status Frekuensi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($dailyStats as $hari => $jumlah)
+                                    @php
+                                        $pctHari = $totalLaporan > 0 ? round(($jumlah / $totalLaporan) * 100, 1) : 0;
+                                    @endphp
+                                    <tr>
+                                        <td><strong>Hari {{ $hari }}</strong></td>
+                                        <td class="text-center fw-bold">{{ $jumlah }} Setoran</td>
+                                        <td class="text-center">{{ $pctHari }}%</td>
+                                        <td class="text-center">
+                                            @if($hari == $hariTeramai && $maxSetor > 0)
+                                                <span class="badge bg-success rounded-pill px-2 py-1" style="font-size:0.65rem;">Paling Ramai</span>
+                                            @elseif($jumlah > 0)
+                                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1" style="font-size:0.65rem;">Aktif</span>
+                                            @else
+                                                <span class="badge bg-secondary bg-opacity-25 text-dark rounded-pill px-2 py-1" style="font-size:0.65rem;">Sepi</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: KELOLA AKUN WARGA -->
+            <div class="tab-pane fade" id="pills-users" role="tabpanel">
+                <div class="glass-card p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0 text-success"><i class="fa-solid fa-users me-1"></i>Kelola Akun Warga</h6>
+                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 py-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahUser" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-user-plus me-1"></i> Tambah
+                        </button>
+                    </div>
+
+                    <!-- TAMPILAN MOBILE: FORMAT CARD -->
+                    <div class="mobile-only">
+                        @foreach($users as $index => $u)
+                            <div class="user-mobile-card d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                        <strong style="font-size: 0.85rem; color:#1c3225;">{{ $u->name }}</strong>
+                                        <span class="badge {{ $u->role == 'admin' ? 'bg-danger' : 'bg-success' }} rounded-pill" style="font-size:0.6rem;">
+                                            {{ strtoupper($u->role) }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted d-block" style="font-size: 0.72rem;">ID: <code class="text-dark">{{ $u->username }}</code></small>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-sm btn-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:32px; height:32px;" data-bs-toggle="modal" data-bs-target="#modalEditUser{{ $u->id }}">
+                                        <i class="fa-solid fa-key" style="font-size: 0.75rem;"></i>
+                                    </button>
+
+                                    <form action="/admin/users/delete/{{ $u->id }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus user ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:32px; height:32px;">
+                                            <i class="fa-solid fa-trash" style="font-size: 0.75rem;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- TAMPILAN DESKTOP: FORMAT TABEL -->
+                    <div class="table-responsive desktop-only">
+                        <table class="table glass-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th>Username / ID</th>
+                                    <th>Nama Lengkap</th>
+                                    <th class="text-center">Role</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($users as $index => $u)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                        <td><code>{{ $u->username }}</code></td>
+                                        <td><strong>{{ $u->name }}</strong></td>
+                                        <td class="text-center">
+                                            <span class="badge {{ $u->role == 'admin' ? 'bg-danger' : 'bg-success' }} px-2 py-1 rounded-pill" style="font-size:0.65rem;">
+                                                {{ strtoupper($u->role) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-warning text-dark rounded-pill px-2 py-0 me-1" data-bs-toggle="modal" data-bs-target="#modalEditUser{{ $u->id }}">
+                                                <i class="fa-solid fa-key"></i> Edit
+                                            </button>
+
+                                            <form action="/admin/users/delete/{{ $u->id }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus user ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FLOATING BOTTOM NAVIGATION -->
+    <div class="bottom-nav nav" id="v-pills-tab" role="tablist">
+        <button class="nav-link active" id="pills-laporan-tab" data-bs-toggle="pill" data-bs-target="#pills-laporan" type="button" role="tab" title="Data Setor Sampah">
+            <i class="fa-solid fa-chart-pie"></i>
+        </button>
+
+        <button class="nav-link" id="pills-analytics-tab" data-bs-toggle="pill" data-bs-target="#pills-analytics" type="button" role="tab" title="Project Analytics Hari">
+            <i class="fa-solid fa-chart-column"></i>
+        </button>
+
+        <button class="nav-link" id="pills-users-tab" data-bs-toggle="pill" data-bs-target="#pills-users" type="button" role="tab" title="Kelola Akun">
+            <i class="fa-solid fa-users-gear"></i>
+        </button>
+    </div>
+
+    <!-- MODAL POPUPS VERIFIKASI & HAPUS LAPORAN -->
+    @foreach($reports as $report)
+        <div class="modal fade" id="modalVerifikasi{{ $report->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-glass">
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h6 class="modal-title fw-bold text-success"><i class="fa-solid fa-scale-balanced me-1"></i> Verifikasi Setoran Sampah</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/admin/reports/verify/{{ $report->id }}" method="POST">
+                        @csrf
+                        <div class="modal-body text-start">
+                            <div class="p-2 mb-3 rounded-3 bg-white bg-opacity-50 border border-white" style="font-size: 0.8rem;">
+                                <div><strong>Warga:</strong> {{ $report->user->name ?? 'Warga' }}</div>
+                                <div><strong>Jenis Sampah:</strong> {{ $report->jenis_sampah }}</div>
+                                <div><strong>Waktu Kirim:</strong> {{ $report->created_at ? $report->created_at->format('d/m/Y H:i') : '-' }}</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold mb-1">Status Verifikasi</label>
+                                <select name="status" class="form-select form-select-sm rounded-pill px-3" required>
+                                    <option value="Disetujui" {{ $report->status == 'Disetujui' ? 'selected' : '' }}>Disetujui (Hitung Poin & Saldo)</option>
+                                    <option value="Ditolak" {{ $report->status == 'Ditolak' ? 'selected' : '' }}>Ditolak (Foto Tidak Valid)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-muted small fw-bold mb-1">Berat Sampah (Kilogram / Kg)</label>
+                                <input type="number" step="0.1" name="bobot_kg" class="form-control form-control-sm rounded-pill px-3" value="{{ $report->bobot_kg }}" placeholder="Contoh: 2.5" required>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.68rem;">
+                                    *Organik: 1 kg = 10 Poin / Rp 1.000<br>
+                                    *Non-Organik: 1 kg = 30 Poin / Rp 3.000
+                                </small>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0 pt-0">
+                            <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-4">Simpan Verifikasi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalHapusLaporan{{ $report->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content modal-glass text-center p-3">
+                    <div class="modal-body pt-2">
+                        <div class="text-warning mb-2">
+                            <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">Hapus Laporan?</h6>
+                        <p class="text-muted small mb-3">Laporan dari <strong>{{ $report->user->name ?? 'Warga' }}</strong> akan dihapus permanen.</p>
+                        <form action="/admin/reports/delete/{{ $report->id }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger btn-sm rounded-pill fw-bold">Ya, Hapus</button>
+                                <button type="button" class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <!-- MODAL EDIT & TAMBAH USER -->
+    @foreach($users as$u)
+        <div class="modal fade" id="modalEditUser{{ $u->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-glass">
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h6 class="modal-title fw-bold"><i class="fa-solid fa-key me-2"></i>Ubah User ({{ $u->username }})</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/admin/users/update/{{ $u->id }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-2 text-start">
+                                <label class="form-label text-muted small fw-bold mb-1">Nama Lengkap</label>
+                                <input type="text" name="name" class="form-control form-control-sm rounded-pill px-3" value="{{ $u->name }}" required>
+                            </div>
+                            <div class="mb-2 text-start">
+                                <label class="form-label text-muted small fw-bold mb-1">Password Baru (Opsional)</label>
+                                <input type="password" name="password" class="form-control form-control-sm rounded-pill px-3" placeholder="Isi jika ganti password...">
+                            </div>
+                            <div class="mb-2 text-start">
+                                <label class="form-label text-muted small fw-bold mb-1">Role Akses</label>
+                                <select name="role" class="form-select form-select-sm rounded-pill px-3">
+                                    <option value="user" {{ $u->role == 'user' ? 'selected' : '' }}>User (Warga)</option>
+                                    <option value="admin" {{ $u->role == 'admin' ? 'selected' : '' }}>Admin (Pengelola)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0 pt-0">
+                            <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-4">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-glass">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-user-plus me-2"></i>Tambah User Baru</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/users/store" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-2 text-start">
+                            <label class="form-label text-muted small fw-bold mb-1">Username / NIK ID</label>
+                            <input type="text" name="username" class="form-control form-control-sm rounded-pill px-3" placeholder="Contoh: kk003" required>
+                        </div>
+                        <div class="mb-2 text-start">
+                            <label class="form-label text-muted small fw-bold mb-1">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control form-control-sm rounded-pill px-3" placeholder="Contoh: Ahmad Yani" required>
+                        </div>
+                        <div class="mb-2 text-start">
+                            <label class="form-label text-muted small fw-bold mb-1">Password Akses</label>
+                            <input type="password" name="password" class="form-control form-control-sm rounded-pill px-3" placeholder="Ketik password..." required>
+                        </div>
+                        <div class="mb-2 text-start">
+                            <label class="form-label text-muted small fw-bold mb-1">Role Akses</label>
+                            <select name="role" class="form-select form-select-sm rounded-pill px-3">
+                                <option value="user">User (Warga)</option>
+                                <option value="admin">Admin (Pengelola)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-4">Tambah</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- SCRIPT UTAMA CHART & DOWNLOAD EXCEL -->
+    <script>
+        // 0. LOGIKA DOWNLOAD EXCEL HYBRID (SUPPORT PC & MOBILE WEVIEWER)
+        function downloadExcelReport() {
+            const fullDownloadUrl = window.location.origin + '/admin/reports/export-spreadsheet';
+
+            // Jika dibuka di dalam WebViewer MIT App Inventor
+            if (typeof AppInventor !== 'undefined' && AppInventor.setWebViewString) {
+                // Kirim sinyal khusus ke App Inventor
+                AppInventor.setWebViewString('DOWNLOAD_EXCEL:' + fullDownloadUrl);
+            } else {
+                // Jika dibuka di browser biasa (Desktop PC atau Chrome Mobile HP)
+                fetch(fullDownloadUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Gagal mendownload file');
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'Laporan_Bank_Sampah_' + new Date().toISOString().slice(0, 10) + '.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(err => {
+                        // Fallback jika fetch blob diblokir browser: buka langsung di tab baru
+                        window.open(fullDownloadUrl, '_blank');
+                    });
+            }
+        }
+
+        // 1. CHART DONUT PROGRESS
+        const totalVal = {{ $totalLaporan }};
+        const organikVal = {{ $totalOrganik }};
+        const nonOrganikVal = {{ $totalNonOrganik }};
+
+        const pctOrganik = {{ $pctOrganik }};
+        const pctNonOrganik = {{ $pctNonOrganik }};
+
+        const ctxDonut = document.getElementById('wasteProgressChart').getContext('2d');
+        const wasteChart = new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Organik', 'Non-Organik'],
+                datasets: [{
+                    data: [organikVal > 0 || nonOrganikVal > 0 ? organikVal : 1, nonOrganikVal],
+                    backgroundColor: ['#48bb78', '#1e3a29'],
+                    hoverBackgroundColor: ['#38a169', '#14271c'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '76%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(20, 38, 27, 0.92)',
+                        bodyFont: { family: 'LTWaveUI', size: 10, weight: 'bold' },
+                        padding: { top: 3, bottom: 3, left: 6, right: 6 },
+                        cornerRadius: 6,
+                        displayColors: false,
+                        yAlign: 'bottom',
+                        caretSize: 4,
+                        callbacks: {
+                            title: function() { return ''; },
+                            label: function(context) {
+                                let value = context.raw;
+                                let percentage = totalVal > 0 ? Math.round((value / totalVal) * 100) : 0;
+                                return `${percentage}%`;
+                            }
+                        }
+                    }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        if (index === 0) updateChartCenter('organik');
+                        else updateChartCenter('nonorganik');
+                    }
+                }
+            }
+        });
+
+        function updateChartCenter(type) {
+            const valElem = document.getElementById('centerPercentVal');
+            const labelElem = document.getElementById('centerPercentLabel');
+
+            document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('active'));
+
+            if (type === 'organik') {
+                valElem.innerText = `${pctOrganik}%`;
+                labelElem.innerText = 'Organik';
+                document.getElementById('btnChipOrganik').classList.add('active');
+            } else if (type === 'nonorganik') {
+                valElem.innerText = `${pctNonOrganik}%`;
+                labelElem.innerText = 'Non-Org';
+                document.getElementById('btnChipNonOrganik').classList.add('active');
+            } else {
+                valElem.innerText = `${totalVal}`;
+                labelElem.innerText = 'Total Setor';
+                document.getElementById('btnChipTotal').classList.add('active');
+            }
+        }
+
+        // 2. CHART BAR ANALISIS HARIAN
+        const ctxBar = document.getElementById('dailyAnalyticsChart').getContext('2d');
+        const dailyData = [
+            {{ $dailyStats['Minggu'] }},
+            {{ $dailyStats['Senin'] }},
+            {{ $dailyStats['Selasa'] }},
+            {{ $dailyStats['Rabu'] }},
+            {{ $dailyStats['Kamis'] }},
+            {{ $dailyStats['Jumat'] }},
+            {{ $dailyStats['Sabtu'] }}
+        ];
+
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['M', 'S', 'S', 'R', 'K', 'J', 'S'],
+                datasets: [{
+                    label: 'Jumlah Setoran',
+                    data: dailyData,
+                    backgroundColor: function(context) {
+                        const val = context.raw;
+                        const max = Math.max(...dailyData);
+                        return (val === max && max > 0) ? '#1e3a29' : '#48bb78';
+                    },
+                    borderRadius: 20,
+                    borderSkipped: false,
+                    barThickness: 22
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(20, 38, 27, 0.9)',
+                        cornerRadius: 8,
+                        callbacks: {
+                            title: function(items) {
+                                const fullDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                                return fullDays[items[0].dataIndex];
+                            },
+                            label: function(context) {
+                                return `${context.raw} Setoran Sampah`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'LTWaveUI', size: 11, weight: 'bold' }, color: '#1c3225' }
+                    },
+                    y: {
+                        display: false,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+</file>
+
+<file path="resources/views/welcome.blade.php">
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Laravel</title>
+
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+        <!-- Styles -->
+        <style>
+            /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}a{background-color:transparent}[hidden]{display:none}html{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;line-height:1.5}*,:after,:before{box-sizing:border-box;border:0 solid #e2e8f0}a{color:inherit;text-decoration:inherit}svg,video{display:block;vertical-align:middle}video{max-width:100%;height:auto}.bg-white{--bg-opacity:1;background-color:#fff;background-color:rgba(255,255,255,var(--bg-opacity))}.bg-gray-100{--bg-opacity:1;background-color:#f7fafc;background-color:rgba(247,250,252,var(--bg-opacity))}.border-gray-200{--border-opacity:1;border-color:#edf2f7;border-color:rgba(237,242,247,var(--border-opacity))}.border-t{border-top-width:1px}.flex{display:flex}.grid{display:grid}.hidden{display:none}.items-center{align-items:center}.justify-center{justify-content:center}.font-semibold{font-weight:600}.h-5{height:1.25rem}.h-8{height:2rem}.h-16{height:4rem}.text-sm{font-size:.875rem}.text-lg{font-size:1.125rem}.leading-7{line-height:1.75rem}.mx-auto{margin-left:auto;margin-right:auto}.ml-1{margin-left:.25rem}.mt-2{margin-top:.5rem}.mr-2{margin-right:.5rem}.ml-2{margin-left:.5rem}.mt-4{margin-top:1rem}.ml-4{margin-left:1rem}.mt-8{margin-top:2rem}.ml-12{margin-left:3rem}.-mt-px{margin-top:-1px}.max-w-6xl{max-width:72rem}.min-h-screen{min-height:100vh}.overflow-hidden{overflow:hidden}.p-6{padding:1.5rem}.py-4{padding-top:1rem;padding-bottom:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.pt-8{padding-top:2rem}.fixed{position:fixed}.relative{position:relative}.top-0{top:0}.right-0{right:0}.shadow{box-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)}.text-center{text-align:center}.text-gray-200{--text-opacity:1;color:#edf2f7;color:rgba(237,242,247,var(--text-opacity))}.text-gray-300{--text-opacity:1;color:#e2e8f0;color:rgba(226,232,240,var(--text-opacity))}.text-gray-400{--text-opacity:1;color:#cbd5e0;color:rgba(203,213,224,var(--text-opacity))}.text-gray-500{--text-opacity:1;color:#a0aec0;color:rgba(160,174,192,var(--text-opacity))}.text-gray-600{--text-opacity:1;color:#718096;color:rgba(113,128,150,var(--text-opacity))}.text-gray-700{--text-opacity:1;color:#4a5568;color:rgba(74,85,104,var(--text-opacity))}.text-gray-900{--text-opacity:1;color:#1a202c;color:rgba(26,32,44,var(--text-opacity))}.underline{text-decoration:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.w-5{width:1.25rem}.w-8{width:2rem}.w-auto{width:auto}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}@media (min-width:640px){.sm\:rounded-lg{border-radius:.5rem}.sm\:block{display:block}.sm\:items-center{align-items:center}.sm\:justify-start{justify-content:flex-start}.sm\:justify-between{justify-content:space-between}.sm\:h-20{height:5rem}.sm\:ml-0{margin-left:0}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:pt-0{padding-top:0}.sm\:text-left{text-align:left}.sm\:text-right{text-align:right}}@media (min-width:768px){.md\:border-t-0{border-top-width:0}.md\:border-l{border-left-width:1px}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (min-width:1024px){.lg\:px-8{padding-left:2rem;padding-right:2rem}}@media (prefers-color-scheme:dark){.dark\:bg-gray-800{--bg-opacity:1;background-color:#2d3748;background-color:rgba(45,55,72,var(--bg-opacity))}.dark\:bg-gray-900{--bg-opacity:1;background-color:#1a202c;background-color:rgba(26,32,44,var(--bg-opacity))}.dark\:border-gray-700{--border-opacity:1;border-color:#4a5568;border-color:rgba(74,85,104,var(--border-opacity))}.dark\:text-white{--text-opacity:1;color:#fff;color:rgba(255,255,255,var(--text-opacity))}.dark\:text-gray-400{--text-opacity:1;color:#cbd5e0;color:rgba(203,213,224,var(--text-opacity))}.dark\:text-gray-500{--tw-text-opacity:1;color:#6b7280;color:rgba(107,114,128,var(--tw-text-opacity))}}
+        </style>
+
+        <style>
+            body {
+                font-family: 'Nunito', sans-serif;
+            }
+        </style>
+    </head>
+    <body class="antialiased">
+        <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
+            @if (Route::has('login'))
+                <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+                    @auth
+                        <a href="{{ url('/home') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Home</a>
+                    @else
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Log in</a>
+
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Register</a>
+                        @endif
+                    @endauth
+                </div>
+            @endif
+
+            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+                <div class="flex justify-center pt-8 sm:justify-start sm:pt-0">
+                    <svg viewBox="0 0 651 192" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto text-gray-700 sm:h-20">
+                        <g clip-path="url(#clip0)" fill="#EF3B2D">
+                            <path d="M248.032 44.676h-16.466v100.23h47.394v-14.748h-30.928V44.676zM337.091 87.202c-2.101-3.341-5.083-5.965-8.949-7.875-3.865-1.909-7.756-2.864-11.669-2.864-5.062 0-9.69.931-13.89 2.792-4.201 1.861-7.804 4.417-10.811 7.661-3.007 3.246-5.347 6.993-7.016 11.239-1.672 4.249-2.506 8.713-2.506 13.389 0 4.774.834 9.26 2.506 13.459 1.669 4.202 4.009 7.925 7.016 11.169 3.007 3.246 6.609 5.799 10.811 7.66 4.199 1.861 8.828 2.792 13.89 2.792 3.913 0 7.804-.955 11.669-2.863 3.866-1.908 6.849-4.533 8.949-7.875v9.021h15.607V78.182h-15.607v9.02zm-1.431 32.503c-.955 2.578-2.291 4.821-4.009 6.73-1.719 1.91-3.795 3.437-6.229 4.582-2.435 1.146-5.133 1.718-8.091 1.718-2.96 0-5.633-.572-8.019-1.718-2.387-1.146-4.438-2.672-6.156-4.582-1.719-1.909-3.032-4.152-3.938-6.73-.909-2.577-1.36-5.298-1.36-8.161 0-2.864.451-5.585 1.36-8.162.905-2.577 2.219-4.819 3.938-6.729 1.718-1.908 3.77-3.437 6.156-4.582 2.386-1.146 5.059-1.718 8.019-1.718 2.958 0 5.656.572 8.091 1.718 2.434 1.146 4.51 2.674 6.229 4.582 1.718 1.91 3.054 4.152 4.009 6.729.953 2.577 1.432 5.298 1.432 8.162-.001 2.863-.479 5.584-1.432 8.161zM463.954 87.202c-2.101-3.341-5.083-5.965-8.949-7.875-3.865-1.909-7.756-2.864-11.669-2.864-5.062 0-9.69.931-13.89 2.792-4.201 1.861-7.804 4.417-10.811 7.661-3.007 3.246-5.347 6.993-7.016 11.239-1.672 4.249-2.506 8.713-2.506 13.389 0 4.774.834 9.26 2.506 13.459 1.669 4.202 4.009 7.925 7.016 11.169 3.007 3.246 6.609 5.799 10.811 7.66 4.199 1.861 8.828 2.792 13.89 2.792 3.913 0 7.804-.955 11.669-2.863 3.866-1.908 6.849-4.533 8.949-7.875v9.021h15.607V78.182h-15.607v9.02zm-1.432 32.503c-.955 2.578-2.291 4.821-4.009 6.73-1.719 1.91-3.795 3.437-6.229 4.582-2.435 1.146-5.133 1.718-8.091 1.718-2.96 0-5.633-.572-8.019-1.718-2.387-1.146-4.438-2.672-6.156-4.582-1.719-1.909-3.032-4.152-3.938-6.73-.909-2.577-1.36-5.298-1.36-8.161 0-2.864.451-5.585 1.36-8.162.905-2.577 2.219-4.819 3.938-6.729 1.718-1.908 3.77-3.437 6.156-4.582 2.386-1.146 5.059-1.718 8.019-1.718 2.958 0 5.656.572 8.091 1.718 2.434 1.146 4.51 2.674 6.229 4.582 1.718 1.91 3.054 4.152 4.009 6.729.953 2.577 1.432 5.298 1.432 8.162 0 2.863-.479 5.584-1.432 8.161zM650.772 44.676h-15.606v100.23h15.606V44.676zM365.013 144.906h15.607V93.538h26.776V78.182h-42.383v66.724zM542.133 78.182l-19.616 51.096-19.616-51.096h-15.808l25.617 66.724h19.614l25.617-66.724h-15.808zM591.98 76.466c-19.112 0-34.239 15.706-34.239 35.079 0 21.416 14.641 35.079 36.239 35.079 12.088 0 19.806-4.622 29.234-14.688l-10.544-8.158c-.006.008-7.958 10.449-19.832 10.449-13.802 0-19.612-11.127-19.612-16.884h51.777c2.72-22.043-11.772-40.877-33.023-40.877zm-18.713 29.28c.12-1.284 1.917-16.884 18.589-16.884 16.671 0 18.697 15.598 18.813 16.884h-37.402zM184.068 43.892c-.024-.088-.073-.165-.104-.25-.058-.157-.108-.316-.191-.46-.056-.097-.137-.176-.203-.265-.087-.117-.161-.242-.265-.345-.085-.086-.194-.148-.29-.223-.109-.085-.206-.182-.327-.252l-.002-.001-.002-.002-35.648-20.524a2.971 2.971 0 00-2.964 0l-35.647 20.522-.002.002-.002.001c-.121.07-.219.167-.327.252-.096.075-.205.138-.29.223-.103.103-.178.228-.265.345-.066.089-.147.169-.203.265-.083.144-.133.304-.191.46-.031.085-.08.162-.104.25-.067.249-.103.51-.103.776v38.979l-29.706 17.103V24.493a3 3 0 00-.103-.776c-.024-.088-.073-.165-.104-.25-.058-.157-.108-.316-.191-.46-.056-.097-.137-.176-.203-.265-.087-.117-.161-.242-.265-.345-.085-.086-.194-.148-.29-.223-.109-.085-.206-.182-.327-.252l-.002-.001-.002-.002L40.098 1.396a2.971 2.971 0 00-2.964 0L1.487 21.919l-.002.002-.002.001c-.121.07-.219.167-.327.252-.096.075-.205.138-.29.223-.103.103-.178.228-.265.345-.066.089-.147.169-.203.265-.083.144-.133.304-.191.46-.031.085-.08.162-.104.25-.067.249-.103.51-.103.776v122.09c0 1.063.568 2.044 1.489 2.575l71.293 41.045c.156.089.324.143.49.202.078.028.15.074.23.095a2.98 2.98 0 001.524 0c.069-.018.132-.059.2-.083.176-.061.354-.119.519-.214l71.293-41.045a2.971 2.971 0 001.489-2.575v-38.979l34.158-19.666a2.971 2.971 0 001.489-2.575V44.666a3.075 3.075 0 00-.106-.774zM74.255 143.167l-29.648-16.779 31.136-17.926.001-.001 34.164-19.669 29.674 17.084-21.772 12.428-43.555 24.863zm68.329-76.259v33.841l-12.475-7.182-17.231-9.92V49.806l12.475 7.182 17.231 9.92zm2.97-39.335l29.693 17.095-29.693 17.095-29.693-17.095 29.693-17.095zM54.06 114.089l-12.475 7.182V46.733l17.231-9.92 12.475-7.182v74.537l-17.231 9.921zM38.614 7.398l29.693 17.095-29.693 17.095L8.921 24.493 38.614 7.398zM5.938 29.632l12.475 7.182 17.231 9.92v79.676l.001.005-.001.006c0 .114.032.221.045.333.017.146.021.294.059.434l.002.007c.032.117.094.222.14.334.051.124.088.255.156.371a.036.036 0 00.004.009c.061.105.149.191.222.288.081.105.149.22.244.314l.008.01c.084.083.19.142.284.215.106.083.202.178.32.247l.013.005.011.008 34.139 19.321v34.175L5.939 144.867V29.632h-.001zm136.646 115.235l-65.352 37.625V148.31l48.399-27.628 16.953-9.677v33.862zm35.646-61.22l-29.706 17.102V66.908l17.231-9.92 12.475-7.182v33.841z"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow sm:rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                <div class="ml-4 text-lg leading-7 font-semibold"><a href="https://laravel.com/docs" class="underline text-gray-900 dark:text-white">Documentation</a></div>
+                            </div>
+
+                            <div class="ml-12">
+                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                                    Laravel has wonderful, thorough documentation covering every aspect of the framework. Whether you are new to the framework or have previous experience with Laravel, we recommend reading all of the documentation from beginning to end.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-t-0 md:border-l">
+                            <div class="flex items-center">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <div class="ml-4 text-lg leading-7 font-semibold"><a href="https://laracasts.com" class="underline text-gray-900 dark:text-white">Laracasts</a></div>
+                            </div>
+
+                            <div class="ml-12">
+                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                                    Laracasts offers thousands of video tutorials on Laravel, PHP, and JavaScript development. Check them out, see for yourself, and massively level up your development skills in the process.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                                <div class="ml-4 text-lg leading-7 font-semibold"><a href="https://laravel-news.com/" class="underline text-gray-900 dark:text-white">Laravel News</a></div>
+                            </div>
+
+                            <div class="ml-12">
+                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                                    Laravel News is a community driven portal and newsletter aggregating all of the latest and most important news in the Laravel ecosystem, including new package releases and tutorials.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-l">
+                            <div class="flex items-center">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="ml-4 text-lg leading-7 font-semibold text-gray-900 dark:text-white">Vibrant Ecosystem</div>
+                            </div>
+
+                            <div class="ml-12">
+                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                                    Laravel's robust library of first-party tools and libraries, such as <a href="https://forge.laravel.com" class="underline">Forge</a>, <a href="https://vapor.laravel.com" class="underline">Vapor</a>, <a href="https://nova.laravel.com" class="underline">Nova</a>, and <a href="https://envoyer.io" class="underline">Envoyer</a> help you take your projects to the next level. Pair them with powerful open source libraries like <a href="https://laravel.com/docs/billing" class="underline">Cashier</a>, <a href="https://laravel.com/docs/dusk" class="underline">Dusk</a>, <a href="https://laravel.com/docs/broadcasting" class="underline">Echo</a>, <a href="https://laravel.com/docs/horizon" class="underline">Horizon</a>, <a href="https://laravel.com/docs/sanctum" class="underline">Sanctum</a>, <a href="https://laravel.com/docs/telescope" class="underline">Telescope</a>, and more.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
+                    <div class="text-center text-sm text-gray-500 sm:text-left">
+                        <div class="flex items-center">
+                            <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor" class="-mt-px w-5 h-5 text-gray-400">
+                                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+
+                            <a href="https://laravel.bigcartel.com" class="ml-1 underline">
+                                Shop
+                            </a>
+
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="ml-4 -mt-px w-5 h-5 text-gray-400">
+                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+
+                            <a href="https://github.com/sponsors/taylorotwell" class="ml-1 underline">
+                                Sponsor
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="ml-4 text-center text-sm text-gray-500 sm:text-right sm:ml-0">
+                        Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+</file>
+
+<file path="routes/api.php">
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
+
+Route::get('/login', [ApiController::class, 'login']);
+Route::post('/upload-sampah', [ApiController::class, 'uploadSampah']);
+Route::get('/user-wallet', [ApiController::class, 'getUserWallet']);
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+</file>
+
+<file path="routes/channels.php">
+<?php
+
+use Illuminate\Support\Facades\Broadcast;
+
+/*
+|--------------------------------------------------------------------------
+| Broadcast Channels
+|--------------------------------------------------------------------------
+|
+| Here you may register all of the event broadcasting channels that your
+| application supports. The given channel authorization callbacks are
+| used to check if an authenticated user can listen to the channel.
+|
+*/
+
+Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
+});
+</file>
+
+<file path="routes/console.php">
+<?php
+
+use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Facades\Artisan;
+
+/*
+|--------------------------------------------------------------------------
+| Console Routes
+|--------------------------------------------------------------------------
+|
+| This file is where you may define all of your Closure based console
+| commands. Each Closure is bound to a command instance allowing a
+| simple approach to interacting with each command's IO methods.
+|
+*/
+
+Artisan::command('inspire', function () {
+    $this->comment(Inspiring::quote());
+})->purpose('Display an inspiring quote');
+</file>
+
+<file path="routes/web.php">
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Report;
+use App\Models\User;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/admin/dashboard', function () {
+    $reports = Report::with('user')->latest()->get();
+    $users = User::latest()->get();
+
+    $totalLaporan = $reports->count();
+    $totalOrganik = $reports->where('jenis_sampah', 'Organik')->count();
+    $totalNonOrganik = $reports->where('jenis_sampah', 'Non-Organik')->count();
+
+    $dailyStats = [
+        'Minggu' => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 0; })->count(),
+        'Senin'  => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 1; })->count(),
+        'Selasa' => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 2; })->count(),
+        'Rabu'   => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 3; })->count(),
+        'Kamis'  => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 4; })->count(),
+        'Jumat'  => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 5; })->count(),
+        'Sabtu'  => $reports->filter(function($r) { return $r->created_at && $r->created_at->dayOfWeek === 6; })->count(),
+    ];
+
+    $hariTeramai = 'Belum Ada Data';
+    $maxSetor = 0;
+    foreach ($dailyStats as $hari => $jumlah) {
+        if ($jumlah > $maxSetor) {
+            $maxSetor = $jumlah;
+            $hariTeramai = $hari;
+        }
+    }
+
+    return view('admin.dashboard', compact(
+        'reports', 'users', 'totalLaporan', 'totalOrganik', 'totalNonOrganik',
+        'dailyStats', 'hariTeramai', 'maxSetor'
+    ));
+});
+
+// ROUTE BARU: VERIFIKASI SETORAN & INPUT BOBOT SAMPAH
+Route::post('/admin/reports/verify/{id}', function (Request $request, $id) {
+    $report = Report::findOrFail($id);
+
+    $bobotKg = (float) $request->input('bobot_kg', 0);
+    $status = $request->input('status', 'Disetujui');
+
+    if ($status === 'Disetujui') {
+        // RUMUS KALKULASI POIN & SALDO RUPIAH:
+        // Organik: 1 kg = 10 Poin / Rp 1.000
+        // Non-Organik: 1 kg = 30 Poin / Rp 3.000
+        if ($report->jenis_sampah === 'Organik') {
+            $poin = $bobotKg * 10;
+            $saldoRp = $bobotKg * 1000;
+        } else {
+            $poin = $bobotKg * 30;
+            $saldoRp = $bobotKg * 3000;
+        }
+
+        $report->update([
+            'bobot_kg' => $bobotKg,
+            'poin'     => $poin,
+            'saldo_rp' => $saldoRp,
+            'status'   => 'Disetujui'
+        ]);
+    } else {
+        $report->update([
+            'status'   => 'Ditolak',
+            'bobot_kg' => 0,
+            'poin'     => 0,
+            'saldo_rp' => 0
+        ]);
+    }
+
+    return redirect('/admin/dashboard')->with('success', 'Setoran sampah berhasil diverifikasi!');
+});
+
+Route::post('/admin/users/store', function (Request $request) {
+    $request->validate([
+        'username' => 'required|unique:users,username',
+        'name'     => 'required',
+        'password' => 'required',
+        'role'     => 'required'
+    ]);
+
+    User::create([
+        'username' => strtolower(trim($request->username)),
+        'name'     => trim($request->name),
+        'password' => Hash::make($request->password),
+        'role'     => strtolower(trim($request->role)),
+    ]);
+
+    return redirect('/admin/dashboard')->with('success', 'User warga berhasil ditambahkan!');
+});
+
+Route::post('/admin/users/update/{id}', function (Request $request, $id) {
+    $user = User::findOrFail($id);
+    $user->name = trim($request->name);
+    $user->role = strtolower(trim($request->role));
+
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->save();
+    return redirect('/admin/dashboard')->with('success', 'Data user / password berhasil diperbarui!');
+});
+
+Route::delete('/admin/users/delete/{id}', function ($id) {
+    $user = User::findOrFail($id);
+    $user->delete();
+    return redirect('/admin/dashboard')->with('success', 'User berhasil dihapus!');
+});
+
+Route::delete('/admin/reports/delete/{id}', function ($id) {
+    $report = Report::findOrFail($id);
+    if ($report->foto && Storage::disk('public')->exists('uploads/sampah/' . $report->foto)) {
+        Storage::disk('public')->delete('uploads/sampah/' . $report->foto);
+    }
+    $report->delete();
+    return redirect('/admin/dashboard')->with('success', 'Laporan sampah berhasil dihapus!');
+});
+
+Route::get('/admin/reports/export-spreadsheet', function () {
+    $reports = Report::with('user')->latest()->get();
+    $namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    $fileName = 'Laporan_Pengumpulan_Sampah_' . date('Y-m-d_H-i') . '.csv';
+
+    $headers = [
+        "Content-type"        => "text/csv; charset=UTF-8",
+        "Content-Disposition" => "attachment; filename=$fileName",
+        "Pragma"              => "no-cache",
+        "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+        "Expires"             => "0"
+    ];
+
+    $callback = function() use ($reports, $namaHari) {
+        $file = fopen('php://output', 'w');
+        fputs($file, "\xEF\xBB\xBF");
+        fputs($file, "sep=;\n");
+
+        fputcsv($file, ['No', 'Nama Warga', 'Jenis Sampah', 'Status', 'Bobot (Kg)', 'Poin', 'Saldo Rp', 'Hari Setor', 'Tanggal & Waktu'], ';');
+
+        foreach ($reports as $index => $report) {
+            $hariText = $report->created_at ? $namaHari[$report->created_at->dayOfWeek] : '-';
+            fputcsv($file, [
+                $index + 1,
+                $report->user->name ?? 'Warga',
+                $report->jenis_sampah,
+                $report->status,
+                $report->bobot_kg . ' Kg',
+                $report->poin,
+                'Rp ' . number_format($report->saldo_rp, 0, ',', '.'),
+                $hariText,
+                $report->created_at ? $report->created_at->format('d/m/Y H:i') . ' WIB' : '-'
+            ], ';');
+        }
+
+        fclose($file);
+    };
+
+    return response()->stream($callback, 200, $headers);
+});
+</file>
+
+<file path="storage/app/public/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="storage/app/.gitignore">
+*
+!public/
+!.gitignore
+</file>
+
+<file path="storage/framework/cache/data/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="storage/framework/cache/.gitignore">
+*
+!data/
+!.gitignore
+</file>
+
+<file path="storage/framework/sessions/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="storage/framework/testing/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="storage/framework/views/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="storage/framework/.gitignore">
+compiled.php
+config.php
+down
+events.scanned.php
+maintenance.php
+routes.php
+routes.scanned.php
+schedule-*
+services.json
+</file>
+
+<file path="storage/logs/.gitignore">
+*
+!.gitignore
+</file>
+
+<file path="tests/Feature/ExampleTest.php">
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
+    public function test_example()
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+    }
+}
+</file>
+
+<file path="tests/Unit/ExampleTest.php">
+<?php
+
+namespace Tests\Unit;
+
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
+    public function test_example()
+    {
+        $this->assertTrue(true);
+    }
+}
+</file>
+
+<file path="tests/CreatesApplication.php">
+<?php
+
+namespace Tests;
+
+use Illuminate\Contracts\Console\Kernel;
+
+trait CreatesApplication
+{
+    /**
+     * Creates the application.
+     *
+     * @return \Illuminate\Foundation\Application
+     */
+    public function createApplication()
+    {
+        $app = require __DIR__.'/../bootstrap/app.php';
+
+        $app->make(Kernel::class)->bootstrap();
+
+        return $app;
+    }
+}
+</file>
+
+<file path="tests/TestCase.php">
+<?php
+
+namespace Tests;
+
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
+{
+    use CreatesApplication;
+}
+</file>
+
+<file path=".editorconfig">
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[docker-compose.yml]
+indent_size = 4
+</file>
+
+<file path=".env.example">
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DRIVER=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=null
+MAIL_FROM_NAME="${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=mt1
+
+MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+</file>
+
+<file path=".gitattributes">
+* text=auto
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+/.github export-ignore
+CHANGELOG.md export-ignore
+</file>
+
+<file path=".gitignore">
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+</file>
+
+<file path=".styleci.yml">
+php:
+  preset: laravel
+  version: 8
+  disabled:
+    - no_unused_imports
+  finder:
+    not-name:
+      - index.php
+      - server.php
+js:
+  finder:
+    not-name:
+      - webpack.mix.js
+css: true
+</file>
+
+<file path="artisan">
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader
+| for our application. We just need to utilize it! We'll require it
+| into the script here so that we do not have to worry about the
+| loading of any of our classes manually. It's great to relax.
+|
+*/
+
+require __DIR__.'/vendor/autoload.php';
+
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+/*
+|--------------------------------------------------------------------------
+| Run The Artisan Application
+|--------------------------------------------------------------------------
+|
+| When we run the console application, the current CLI command will be
+| executed in this console and the response sent back to a terminal
+| or another output device for the developers. Here goes nothing!
+|
+*/
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+$status = $kernel->handle(
+    $input = new Symfony\Component\Console\Input\ArgvInput,
+    new Symfony\Component\Console\Output\ConsoleOutput
+);
+
+/*
+|--------------------------------------------------------------------------
+| Shutdown The Application
+|--------------------------------------------------------------------------
+|
+| Once Artisan has finished running, we will fire off the shutdown events
+| so that any final work may be done by the application before we shut
+| down the process. This is the last thing to happen to the request.
+|
+*/
+
+$kernel->terminate($input, $status);
+
+exit($status);
+</file>
+
+<file path="composer.json">
+{
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The Laravel Framework.",
+    "keywords": ["framework", "laravel"],
+    "license": "MIT",
+    "require": {
+        "php": "^7.3|^8.0",
+        "fruitcake/laravel-cors": "^2.0",
+        "guzzlehttp/guzzle": "^7.0.1",
+        "laravel/framework": "^8.75",
+        "laravel/sanctum": "^2.11",
+        "laravel/tinker": "^2.5"
+    },
+    "require-dev": {
+        "facade/ignition": "^2.5",
+        "fakerphp/faker": "^1.9.1",
+        "laravel/sail": "^1.0.1",
+        "mockery/mockery": "^1.4.4",
+        "nunomaduro/collision": "^5.10",
+        "phpunit/phpunit": "^9.5.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
+</file>
+
+<file path="package.json">
+{
+    "private": true,
+    "scripts": {
+        "dev": "npm run development",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
+        "prod": "npm run production",
+        "production": "mix --production"
+    },
+    "devDependencies": {
+        "axios": "^0.21",
+        "laravel-mix": "^6.0.6",
+        "lodash": "^4.17.19",
+        "postcss": "^8.1.14"
+    }
+}
+</file>
+
+<file path="phpunit.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+    </coverage>
+    <php>
+        <server name="APP_ENV" value="testing"/>
+        <server name="BCRYPT_ROUNDS" value="4"/>
+        <server name="CACHE_DRIVER" value="array"/>
+        <!-- <server name="DB_CONNECTION" value="sqlite"/> -->
+        <!-- <server name="DB_DATABASE" value=":memory:"/> -->
+        <server name="MAIL_MAILER" value="array"/>
+        <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="SESSION_DRIVER" value="array"/>
+        <server name="TELESCOPE_ENABLED" value="false"/>
+    </php>
+</phpunit>
+</file>
+
+<file path="README.md">
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+
+<p align="center">
+<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
+
+## About Laravel
+
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
+
+## Learning Laravel
+
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+
+## Laravel Sponsors
+
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+
+### Premium Partners
+
+- **[Vehikl](https://vehikl.com/)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Cubet Techno Labs](https://cubettech.com)**
+- **[Cyber-Duck](https://cyber-duck.co.uk)**
+- **[Many](https://www.many.co.uk)**
+- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
+- **[DevSquad](https://devsquad.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
+- **[OP.GG](https://op.gg)**
+- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
+- **[Lendio](https://lendio.com)**
+
+## Contributing
+
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+</file>
+
+<file path="server.php">
+<?php
+
+/**
+ * Laravel - A PHP Framework For Web Artisans
+ *
+ * @package  Laravel
+ * @author   Taylor Otwell <taylor@laravel.com>
+ */
+
+$uri = urldecode(
+    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? ''
+);
+
+// This file allows us to emulate Apache's "mod_rewrite" functionality from the
+// built-in PHP web server. This provides a convenient way to test a Laravel
+// application without having installed a "real" web server software here.
+if ($uri !== '/' && file_exists(__DIR__.'/public'.$uri)) {
+    return false;
+}
+
+require_once __DIR__.'/public/index.php';
+</file>
+
+<file path="webpack.mix.js">
+const mix = require('laravel-mix');
+
+/*
+ |--------------------------------------------------------------------------
+ | Mix Asset Management
+ |--------------------------------------------------------------------------
+ |
+ | Mix provides a clean, fluent API for defining some Webpack build steps
+ | for your Laravel applications. By default, we are compiling the CSS
+ | file for the application as well as bundling up all the JS files.
+ |
+ */
+
+mix.js('resources/js/app.js', 'public/js')
+    .postCss('resources/css/app.css', 'public/css', [
+        //
+    ]);
+</file>
+
+</files>
