@@ -99,3 +99,8 @@ php artisan serve --host=0.0.0.0 --port=8000
  2.Sesuaikan IP server pada variabel URL di blok Screen1, Screen2, dan ScreenAdmin dengan alamat IP IPv4 laptop kamu (contoh: http://192.168.1.206:8000).
 
  3.Build file APK atau jalankan via MIT Companion di HP Android.
+
+ ---
+
+ #CATATAN BESAR
+ APABILA TIDAK BISA BERJALAN JUGA DENGAN CARA TERSEBUT. DISARANKAN UNTUK TURN OFF WINDOWS DEFENDER FIREWALL
